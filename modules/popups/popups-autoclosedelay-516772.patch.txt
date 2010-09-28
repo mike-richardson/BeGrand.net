@@ -1,0 +1,45 @@
+Index: popups.js
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/popups/popups.js,v
+retrieving revision 1.9.8.15
+diff -u -p -r1.9.8.15 popups.js
+--- popups.js	26 Mar 2009 17:30:54 -0000	1.9.8.15
++++ popups.js	12 Jul 2009 06:34:32 -0000
+@@ -969,7 +969,7 @@ Popups.formSuccess = function(popup, dat
+           // Show drupal_set_message in message popup.
+           var messagePopup = Popups.message(data.messages); 
+           if (Popups.originalSettings.popups.autoCloseFinalMessage) {
+-            setTimeout(function(){Popups.close(messagePopup);}, 2500); // Autoclose the message box in 2.5 seconds.
++            setTimeout(function(){Popups.close(messagePopup);}, Popups.originalSettings.popups.autoCloseFinalMessageDelay); // Autoclose the message box in 2.5 seconds.
+           }
+           showingMessagePopup = true;
+         }
+Index: popups.module
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/popups/popups.module,v
+retrieving revision 1.11.8.11
+diff -u -p -r1.11.8.11 popups.module
+--- popups.module	26 Mar 2009 17:25:19 -0000	1.11.8.11
++++ popups.module	12 Jul 2009 06:34:32 -0000
+@@ -316,6 +316,7 @@ function popups_add_popups($rules=NULL) 
+     $settings['popups']['defaultTargetSelector'] = $default_target_selector;
+     $settings['popups']['modulePath'] = drupal_get_path('module', 'popups');
+     $settings['popups']['autoCloseFinalMessage'] = variable_get('popups_autoclose_final_message', 1);
++    $settings['popups']['autoCloseFinalMessageDelay'] = variable_get('popups_autoclose_final_message_delay', 2500);
+     drupal_add_js( $settings, 'setting' );
+     $added = TRUE;
+   }
+@@ -405,6 +406,13 @@ function popups_admin_settings() {
+     '#title' => t('Automatically close final confirmation messages.'),
+     '#default_value' => variable_get('popups_autoclose_final_message', 1),
+   );
++  $form['popups_autoclose_final_message_delay'] = array(
++    '#type' => 'textfield',
++    '#size' => 6,
++    '#maxlegnth' => 5,
++    '#title' => t('Delay (in ms) before auto closing final delay'),
++    '#default_value' => variable_get('popups_autoclose_final_message_delay', 2500),
++  );
+ 
+   // Retrieve all available skins, forcing the registry to refresh.
+   $skins['Unskinned'] = array();

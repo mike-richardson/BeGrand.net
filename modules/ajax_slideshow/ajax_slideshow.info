@@ -1,0 +1,12 @@
+;$Id: ajax_slideshow.info,v 1.1 2009/10/17 12:43:31 udig Exp $
+name = AJAX Slideshow
+description = "Enables showing series of nodes as a slideshow. Ajax is used to ensure best performance."
+dependencies[] = views
+core = 6.x
+
+; Information added by drupal.org packaging script on 2009-10-17
+version = "6.x-1.1"
+core = "6.x"
+project = "ajax_slideshow"
+datestamp = "1255789202"
+

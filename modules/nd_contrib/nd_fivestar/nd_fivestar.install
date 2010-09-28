@@ -1,0 +1,15 @@
+<?php
+// $Id: nd_fivestar.install,v 1.1.2.1 2009/09/10 11:53:33 swentel Exp $
+
+/**
+ * @file
+ * Install file
+ */
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function nd_fivestar_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'nd_fivestar_%%'");
+  cache_clear_all('variables', 'cache');
+}

@@ -1,0 +1,22 @@
+Index: popups.js
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/popups/popups.js,v
+retrieving revision 1.9.8.15
+diff -u -p -r1.9.8.15 popups.js
+--- popups.js	26 Mar 2009 17:30:54 -0000	1.9.8.15
++++ popups.js	1 Apr 2009 13:51:27 -0000
+@@ -598,8 +598,12 @@ Popups.removePopup = function(popup) {  
+   }
+   if (popup) {
+     popup.$popup().remove();
+-    Popups.popupStack.splice(Popups.popupStack.indexOf(popup), 1); // Remove popup from stack.  Probably should rework into .pop()
+-  }  
++    for (var i = 0; i < Popups.popupStack.length; i++) {
++      if (Popups.popupStack[i] == popup) {
++        Popups.popupStack.splice(i, 1);  // Remove popup from stack.  Probably should rework into .pop()
++      }
++    }
++  }
+ }; 
+ 
+ /**

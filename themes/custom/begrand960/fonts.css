@@ -1,0 +1,26 @@
+/* @font-face replacement goodness */
+
+@font-face {
+  font-family: Glypha;
+  font-weight: normal;
+  src: url(http://begrand.net/sites/all/custom/themes/begrand960/GlyphaLTPro-Roman.otf);
+}
+
+@font-face {
+  font-family: Glypha Bold;
+  font-weight: bold;
+  src: url(http://begrand.net/sites/all/custom/themes/begrand960/GlyphaLTPro-Bold);
+}
+
+
+/* and now the font replacement itself...  
+
+
+#channel_intro h2,
+#site-slogan h1 {
+	font-family: 'Glypha',  sans-serif;
+}
+
+
+
+*/

@@ -1,0 +1,491 @@
+<?php
+// $id$
+/*
+ * Drupal Module: getclicky
+ * Adds the required Javascript to the bottom of all your Drupal pages
+ * to allow tracking by the getclicky statistics package.
+ *
+ * Lets you see stats (tables, charts) from within drupal :
+ * see the GetClicky settings page
+ *
+ * @author: rsvelko, gloscon
+ */
+
+ 
+function getclicky_help($path, $arg) {
+  switch ($path) {
+    case 'admin/settings/getclicky':
+      return t('GetClicky is a free statistics package.');
+  }
+}
+
+function getclicky_menu() {
+  $items = array();
+  
+  $items['admin/settings/getclicky'] = array(
+    'title' => t('GetClicky'),
+    'description' => t('Configure the settings used to generate your GetClicky tracking code.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('getclicky_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    //'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/settings/getclicky/settings'] = array(
+    'title' => 'Settings',
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  
+  $items['admin/settings/getclicky/stats-dashboard'] = array(
+    'title' => 'Stats Dashboard',
+    'description' => 'Show Stats Dashboard',
+    'page callback' => '_getclicky_output_stats_dashboard',
+//    'page arguments' => array('xmlsitemap_rebuild_confirm'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  
+  $items['admin/reports/stats-dashboard'] = array(
+    'title' => 'Getclicky Stats Dashboard',
+    'description' => 'Show Stats Dashboard',
+    'page callback' => '_getclicky_output_stats_dashboard',
+//    'page arguments' => array('xmlsitemap_rebuild_confirm'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+
+
+  return $items;
+}
+
+
+
+
+
+/**
+ * Implementation of hook_footer()  to insert Javascript at the end of the page
+ */
+function getclicky_footer($main = 0) {
+  global $user;
+  $site_id_number = variable_get('getclicky_site_id_number', '');
+
+  // Don't track page views in the admin sections
+  if ($site_id_number && (arg(0) != 'admin') && _getclicky_track($user) ) {
+
+  
+    // Add User profile segmentation values
+    if (is_array($profile_fields = variable_get('getclicky_segmentation', '')) && ($user->uid > 0)) {
+
+      $p = module_invoke('profile', 'load_profile', $user);
+
+      $fields = array();
+      foreach ($profile_fields as $field => $title) {
+        $user_field = $user->$field;
+
+        if (is_array($user_field)) {
+          $user_field = implode(',', $user_field);
+        }
+
+        $fields[$field] = $user_field;
+      }
+
+      // Only show segmentation variable if there are specified fields.
+      $segmentation = '';
+      if (count($fields) > 0) {
+        $segmentation = drupal_to_js(implode(':', $fields));
+      }
+    }
+
+
+    // Site search tracking support.
+    $url_custom = '';
+    if (module_exists('search') && variable_get('getclicky_site_search', FALSE) && arg(0) == 'search') {
+      $keys = search_get_keys();
+      $url_custom = url('search/'. arg(1), 'search='. trim($keys));
+    }
+
+    // Surround custom urls with single quotes.
+    if (!empty($url_custom)) {
+      $url_custom = drupal_to_js($url_custom);
+    }
+
+    $script .= _getclicky_output_js_code($site_id_number);
+
+    return $script;
+  }
+
+}
+/**
+ *
+ * @param $account
+ *   A user object containing an array of roles to check
+ * @return boolean
+ *   A decision on if the current user is being tracked by getClicky
+ */
+function _getclicky_track($account) {
+
+  // By default we don't track users.
+  $track = FALSE;
+
+  foreach (array_keys($account->roles) as $role) {
+    // Add the tracking code if user is member of one role that should be tracked.
+    if (variable_get('getclicky_track_'. $role, FALSE)) {
+      $track = TRUE;
+    }
+  }
+  
+  // Handle behavior for administrative user 1.
+  if ($account->uid == 1 && variable_get('getclicky_track__user1', FALSE)) {
+    // Enable tracking of user 1 if tracking for "authenticated user" is disabled.
+    $track = TRUE;
+  }
+  elseif ($account->uid == 1 && !variable_get('getclicky_track__user1', FALSE)) {
+    // User 1 is a member of "authenticated user". Disable user tracking
+    // if user 1 shouldn't, but "authenticated user" should be tracked.
+    $track = FALSE;
+  }
+
+  return $track;
+}
+
+
+
+
+function _getclicky_output_banner_html_code($site_id_number) {
+  return '<a title="Clicky Web Analytics" href="http://getclicky.com/' . $site_id_number . '"><img alt="Clicky Web Analytics" src="http://static.getclicky.com/media/links/badge.gif" border="0" /></a>';
+
+  
+/*   TODO 3 badges
+
+  <a title="Clicky Web Analytics" href="http://getclicky.com/157619"><img alt="Clicky Web Analytics" src="http://getclicky.com/media/links/clicky-125.gif" border="0" /></a>
+  
+  <a title="Clicky Web Analytics" href="http://getclicky.com/157619"><img alt="Clicky Web Analytics" src="http://getclicky.com/media/links/clicky-125-2.gif" border="0" /></a>
+  
+  <a title="Clicky Web Analytics" href="http://getclicky.com/157619"><img alt="Clicky Web Analytics" src="http://getclicky.com/media/links/badge.gif" border="0" /></a>
+ */  
+}
+
+
+
+function _getclicky_output_js_code_secure_or_unsecure($site_id_number, $secure) {
+
+  if ($secure == 'secure') {
+    $http_or_https = "https";
+  }
+  else {
+    $http_or_https = "http";
+  }
+  
+  
+  $js_code .= "
+  <script src='" . $http_or_https . "://static.getclicky.com/js' type='text/javascript'></script>
+  <script type='text/javascript'>clicky.init(" . $site_id_number . ");</script>
+  <noscript><p><img alt='Clicky' src='" . $http_or_https . "://static.getclicky.com/" . $site_id_number . "ns.gif' /></p></noscript>
+  ";
+
+  // Add any custom code snippets if specified
+  $codesnippet = variable_get('getclicky_codesnippet', '');  
+  if (!empty($codesnippet)) {
+    $js_code .= '<script type="text/javascript">';
+    $js_code .= $codesnippet;
+    $js_code .='</script>';
+  }
+  
+  return $js_code;
+
+}
+
+
+
+
+function _getclicky_output_js_code($site_id_number) {
+  if (variable_get('getclicky_show_banner_image', FALSE)) {
+    $js_code  .= _getclicky_output_banner_html_code($site_id_number);
+  }
+
+  
+/*     '#options' => array(
+0      t('When onto a https page - do not inject any js code. I do not have a Pro account and/or I do not want to track https pages.'),
+1      t('When onto a https page - use the js code for secure pages. I have a Pro account.'),
+2      t('When onto a https page - use the js code for normal http pages. I do not have a Pro account and I do not mind the mixed-content-warning.'),
+    ),
+*/
+  
+  // Are we on a secure page?
+  if( $_SERVER['HTTPS'] == "on" ) {
+  
+    $getclicky_secure_pages_tracking_option = variable_get('getclicky_secure_pages_tracking_option', 0);
+    
+    if ( $getclicky_secure_pages_tracking_option == 0) {// do not inject
+      $js_code .= '';
+    }
+    elseif ($getclicky_secure_pages_tracking_option == 1) { // https page and secure code
+      $js_code .= _getclicky_output_js_code_secure_or_unsecure($site_id_number, 'secure');
+    }
+    elseif ($getclicky_secure_pages_tracking_option == 2) { // https page and unsecure code
+      $js_code .= _getclicky_output_js_code_secure_or_unsecure($site_id_number, 'unsecure');
+    }
+
+    
+  }
+  else { // http page
+    $js_code .= _getclicky_output_js_code_secure_or_unsecure($site_id_number, 'unsecure');
+  }
+
+  
+  return $js_code;
+
+}
+
+/**
+ * Implementation of hook_block()
+ */
+
+function getclicky_block($op = 'list', $delta = 0, $edit = array()) {
+  if ($op == 'list') {
+    $blocks['getclicky_banner'] = array(
+      'info' => t('Show GetClicky banner image'),
+      'weight' => 0,
+      'status' => 0,
+      //'region' => 'footer',
+      'cache' => BLOCK_CACHE_GLOBAL,
+    );
+
+    return $blocks;
+  }
+/*   else if ($op == 'configure' && $delta == 0) {
+    $form['items'] = array(
+      '#type' => 'select',
+      '#title' => t('Number of items'),
+      '#default_value' => variable_get('mymodule_block_items', 0),
+      '#options' => array('1', '2', '3'),
+    );
+    return $form;
+  } */
+/*   else if ($op == 'save' && $delta == 0) {
+    variable_set('mymodule_block_items', $edit['items']);
+  } */
+  else if ($op == 'view') {
+    switch($delta) {
+      case "getclicky_banner":
+      
+        $block = array(
+          'subject' => t(''), // empty on purpose
+          'content' => variable_get('getclicky_banner_image_html_code_for_copying', '<a title="Clicky Web Analytics" href="http://getclicky.com/' . variable_get('getclicky_site_id_number', '')  . '"><img alt="Clicky Web Analytics" src="http://static.getclicky.com/media/links/badge.gif" border="0" /></a>') ,
+        );
+          
+        break;
+    }
+    return $block;
+  }
+}
+
+
+function _getclicky_output_stats_dashboard() {
+
+  $site_id  = variable_get('getclicky_site_id_number', '');
+  $site_key = variable_get('getclicky_site_key_number', '');
+  
+  if ( $site_id && $site_key) {
+  
+    $iframe = '<iframe style="margin-left: 20px; width: 850px; height: 1000px;" src="http://getclicky.com/stats/wp-iframe?site_id=' . $site_id . '&sitekey=' . $site_key . '"></iframe>'; 
+  
+  }
+  else {
+    $iframe = "Empty. Please enter site id and sitekey ...";
+  }
+  return $iframe;
+  
+  
+}
+
+
+/**
+ * function returning a $form for configuring the module
+ */
+function getclicky_admin_settings() {
+  $form['account'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('GetClicky Account Settings'),
+    '#collapsible' => FALSE,
+    );
+
+
+    
+    
+    
+  $form['account']['getclicky_site_id_number'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Site ID Number'),
+    '#default_value' => variable_get('getclicky_site_id_number', ''),
+    '#size' => 15,
+    '#maxlength' => 20,
+    '#required' => TRUE,
+    '#description' => t('Example input: 130169<br>
+    This number is unique to every website you track via Clicky(a.k.a. GetClicky).<br>
+    - If you <b>do not</b> have an account with Clicky - you can obtain one from the <a href="@url1">GetClicky</a> website. (clicking on this link shows your support for my development of this module - especially if you decide to buy a Pro account with Clicky. Here is <a href="http://getclicky.com/#theotherguys">why</a> and here is <a href="http://getclicky.com/help/pricing">accounts comparison</a>)<br>
+    - If you <b>DO</b> have a Clicky account - you can find that number here:<br>
+      - anywhere you see a link like that <a href="@url2">http://getclicky.com/<b>130169</b></a> - take only the number - this is your Clicky site ID number.
+      - you can find this in your affiliate link (if you have many sites tracked by one Clicky user account - the affiliate link uses the 1st site\'s ID), <br>
+      - also in your tracking code and in your site prefs page ...
+    
+    ', 
+    array('@url1' => 'http://getclicky.com/130169', '@url2' => 'http://getclicky.com/130169')  ),
+    );
+
+    
+    
+  $form['account']['getclicky_site_key_number'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Site Key Number'),
+    '#default_value' => variable_get('getclicky_site_key_number', ''),
+    '#size' => 100,
+    '#maxlength' => 100,
+    '#required' => FALSE,
+    '#description' => t('Example input: 72543da7406597242<br>
+    This number is an API key used to display stats on the <a hre"">page</a>.'),
+    );
+    
+    
+  // Render the role overview.
+  $result = db_query('SELECT * FROM {role} ORDER BY name');
+
+  $form['roles'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User Role Tracking'),
+    '#collapsible' => TRUE,
+    '#description' => t('Define what user roles should be tracked by Get Clicky. <strong>Note:</strong> Drupal Admin pages are never tracked.'),
+    );
+
+  $form['roles']['getclicky_track__user1'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Admin (user 1)'),
+    '#default_value' => variable_get('getclicky_track__user1', FALSE),
+    );
+
+  while ($role = db_fetch_object($result)) {
+    $form['roles']['getclicky_track_'. $role->rid] = array(
+      '#type' => 'checkbox',
+      '#title' => check_plain($role->name),
+      '#default_value' => variable_get('getclicky_track_'. $role->rid, FALSE),
+      );
+  }
+
+  $form['getclicky_banner_image'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('GetClicky Banner Image'),
+    '#collapsible' => TRUE,
+    );
+
+  $form['getclicky_banner_image']['getclicky_show_banner_image'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Inject GetClicky Banner Image in html code\'s footer? (right before the closing body tag)'),
+    '#description' => t('Check this to show this in your site\'s footer automatically if you want visitors to click on your affiliate link.'),
+    '#default_value' => variable_get('getclicky_show_banner_image', FALSE),
+    );
+
+    
+  $form['getclicky_banner_image']['getclicky_banner_image_html_code_for_copying'] = array(
+    '#type' => 'textarea',
+    '#title' => t('HTML Banner code (used in the block we provide)'),
+    '#description' => t('This code is used in the block we provide for you - go to <a href="/admin/build/block">/admin/build/block</a> to put it into a region.<br>
+      <b>See here - <a href="http://getclicky.com/user/affiliate">http://getclicky.com/user/affiliate</a> for more banner images. Paste from there into here, and the block here will auto-update. </b>
+    '),
+    '#default_value' => variable_get('getclicky_banner_image_html_code_for_copying', '<a title="Clicky Web Analytics" href="http://getclicky.com/' . variable_get('getclicky_site_id_number', '')  . '"><img alt="Clicky Web Analytics" src="http://static.getclicky.com/media/links/badge.gif" border="0" /></a>'),
+
+    );
+
+
+
+  $form['segmentation'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User Segmentation'),
+    '#collapsible' => TRUE,
+    '#description' => t('If your users have profile fields completed, you can track your logged in users based on a defined profile field.'),
+    );
+
+    
+// "profile" module integration
+  if (!module_exists('profile')) {
+    $form['segmentation']['profile'] = array(
+      '#type' => 'markup',
+      '#value' => t('You need to activate the !profile to use this feature.', array('!profile' => l(t('Profile module'), 'admin/build/modules'))),
+      '#prefix' => '<p>',
+      '#suffix' => '</p>',
+      );
+  }
+  else {
+    // Compile a list of fields to show.
+    $fields = array(
+      'uid' => t('User ID (uid in mysql)'),
+      'name' => t('Username (name)'),
+      'roles' => t('User Roles (roles)'),
+      );
+    $result = db_query('SELECT name, title, type, weight FROM {profile_fields} ORDER BY weight');
+    while ($record = db_fetch_object($result)) {
+      $fields[$record->name] = $record->title;
+    }
+
+    $form['segmentation']['getclicky_segmentation'] = array(
+      '#type' => 'select',
+      '#title' => t('Track'),
+      '#description' => t('Selecting one or more values allows you to track users by profile values rather than simply an IP address. To select multiple items, hold down CTRL whilst selecting fields.'),
+      '#default_value' => variable_get('getclicky_segmentation', ''),
+      '#options' => $fields,
+      '#size' => 10,
+      '#multiple' => TRUE,
+      );
+  }
+
+  $form['getclicky_trackfiles'] = array(
+    '#type' => 'textfield',
+    '#title' => t('File Extensions To Track'),
+    '#default_value' => variable_get('getclicky_trackfiles', 'pdf|zip|mp3'),
+    '#description' => t('A pipe seperated list of file extensions that should be tracked when clicked. Example !extensions', array('!extensions' => 'pdf|zip|mp3')),
+  );
+    
+    
+    
+  $form['getclicky_secure_pages_tracking'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Secure Pages'),
+    '#collapsible' => TRUE,
+    '#description' => t(''),
+  );
+
+  $form['getclicky_secure_pages_tracking']['getclicky_secure_pages_tracking_option'] = array(
+    '#type' => 'radios',
+    '#title' => t('Choose how to track secure pages (https:// aka SSL pages ) (If you do not use SSL in your site - this setting does not matter.)'),
+    '#default_value' => variable_get('getclicky_secure_pages_tracking_option', 0),
+    '#options' => array(
+      t('When onto a https page - do not inject any js code. I do not have a Pro account and/or I do not want to track https pages.'),
+      t('When onto a https page - use the js code for secure pages. I have a Pro account.'),
+      t('When onto a https page - use the js code for normal http pages. I do not have a Pro account and I do not mind the mixed-content-warning.'),
+    ),
+  );
+
+    
+    
+
+  $form['advanced'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Advanced'),
+    '#collapsible' => TRUE,
+    '#collapsed' => TRUE,
+    '#description' => t('You can add custom Get Clicky code here.'),
+    );
+
+  $form['advanced']['getclicky_codesnippet'] = array(
+    '#type' => 'textarea',
+    '#title' => t('JavaScript Code'),
+    '#default_value' => variable_get('getclicky_codesnippet', ''),
+    '#rows' => 15,
+    '#description' => t('Paste <a href="@snippets">custom code snippets here</a>. These will be added to every page that Get Clicky appears on.', array('@snippets' => 'http://drupal.org/node/39282')),
+    );
+
+  return system_settings_form($form);
+}
+

@@ -1,0 +1,12 @@
+; $Id: cave.info,v 1.1.2.1 2009/06/26 12:21:14 danielb Exp $
+name = Cave Your Trolls
+description = Hide users posts from everyone but themselves.
+package = Other
+core = 6.x
+dependencies[] = troll
+; Information added by drupal.org packaging script on 2009-09-11
+version = "6.x-1.0-beta4"
+core = "6.x"
+project = "cave"
+datestamp = "1252665029"
+

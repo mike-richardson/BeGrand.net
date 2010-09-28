@@ -1,0 +1,167 @@
+/* $Id$ */
+
+#opacity_window {
+  width: 220px;
+}
+
+#opacity_window_contents {
+  background: #FFFFFF;
+}
+
+#opacity_window_contents p {
+  padding:3px 5px;
+}
+
+#opacity_window_contents div {
+  padding: 3px;
+}
+
+* html #opacity_window_contents {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='scale');
+}
+
+/**
+ * Top Left
+ */
+#opacity_window_tl {
+  width: 10px;
+  height: 10px;
+  background: url('images/info_bg.png') top left repeat transparent;
+  -moz-border-radius-topleft: 10px;
+  -webkit-border-top-left-radius:10px;
+}
+
+* html #opacity_window_tl {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='crop');
+}
+
+/**
+ * Top
+ */
+#opacity_window_t {
+  background: url('images/info_bg.png') top left repeat-x transparent;
+}
+
+* html #opacity_window_t {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='scale');
+}
+
+/**
+ * Top Right
+ */
+#opacity_window_tr {
+  width: 10px;
+  height: 10px;
+  background: url('images/info_bg.png') top right repeat transparent;
+  -moz-border-radius-topright: 10px;
+  -webkit-border-top-right-radius:10px;
+}
+
+* html #opacity_window_tr {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='scale');
+}
+
+/**
+ * Left
+ */
+#opacity_window_l {
+  background: url('images/info_bg.png') top left repeat-y transparent;
+  width: 10px;
+}
+
+* html #opacity_window_l {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='scale');
+}
+
+/**
+ * Right
+ */
+#opacity_window_r {
+  background: url('images/info_bg.png') top right repeat-y transparent;
+  width: 10px;
+}
+
+* html #opacity_window_r {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='scale');
+}
+
+/**
+ * Bottom Left
+ */
+#opacity_window_bl {
+  width: 10px;
+  height: 10px;
+  background: url('images/info_bg.png') top left repeat transparent;
+  -moz-border-radius-bottomleft: 10px;
+  -webkit-border-bottom-left-radius:10px;
+}
+
+* html #opacity_window_bl {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='crop');
+}
+
+/**
+ * Bottom
+ */
+#opacity_window_b {
+  height: 18px;
+  background: url('images/info_bg.png') bottom left repeat-x transparent;
+}
+
+* html #opacity_window_b {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='scale');
+}
+
+/**
+ * Bottom Right
+ */
+#opacity_window_br {
+  width: 10px;
+  height: 10px;
+  background: url('images/info_bg.png') top left repeat transparent;
+  -moz-border-radius-bottomright: 10px;
+  -webkit-border-bottom-right-radius:10px;
+}
+
+* html #opacity_window_br {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='crop');
+}
+
+/**
+ * Close
+ */
+#opacity_window_close {
+  width: 20px;
+  height: 20px;
+  margin: -8px 0 0 10px;
+  background: url('images/close.png') top left no-repeat transparent;
+  cursor: pointer;
+}
+
+* html #opacity_window_close {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='crop');
+}
+
+/**
+ * Beak
+ */
+#opacity_window_beak {
+  width: 30px;
+  height: 20px;
+  background: transparent url(images/beak.png) no-repeat scroll center 2px;
+}
+
+* html #opacity_window_beak {
+  background-image: none;
+  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='images/info_bg.png', sizingMethod='crop');
+}

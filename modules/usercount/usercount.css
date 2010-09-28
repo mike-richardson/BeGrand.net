@@ -1,0 +1,11 @@
+.usercount caption {
+    text-align: left;
+    font-weight: bold;
+}
+
+.usercount td.col1 {
+    width: 80%;
+}
+.usercount td.col2 {
+    width: 20%;
+}

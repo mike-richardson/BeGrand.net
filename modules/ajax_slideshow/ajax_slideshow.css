@@ -1,0 +1,11 @@
+/* $Id: ajax_slideshow.css,v 1.1 2009/10/17 12:43:31 udig Exp $ */ 
+/* INPUT WRAPPER */
+#slideshow-input-wrapper{position:relative;}
+#slideshow-front-content, #slideshow-view{position:absolute; top:0; left:0; width:100%}
+#slideshow-view{display:none;}
+#slideshow-front-content h2 a{display:none}
+
+/* OUTPUT WRAPPER */
+#node-content0, #node-content1{position:absolute; top:0; left:0; display:none;}
+#slideshow-output-wrapper{position:relative;}
+

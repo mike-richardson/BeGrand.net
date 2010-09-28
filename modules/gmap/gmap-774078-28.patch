@@ -1,0 +1,168 @@
+Index: gmap.module
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/gmap/gmap.module,v
+retrieving revision 1.104.2.6
+diff -u -p -r1.104.2.6 gmap.module
+--- gmap.module	8 Jun 2010 17:40:59 -0000	1.104.2.6
++++ gmap.module	23 Jun 2010 12:28:08 -0000
+@@ -164,6 +164,10 @@ function gmap_gmap($op, &$map) {
+       if (isset($map['feed']) && is_array($map['feed'])) {
+         drupal_add_js($path . 'markerloader_georss.js');
+       }
++      // ExtInfoWindow
++      if (variable_get('gmap_extinfowindow_active', FALSE)) {
++        gmap_add_extinfowindow();
++      }
+       break;
+     case 'macro_multiple':
+       return array('points', 'markers', 'feed', 'circle', 'rpolygon', 'polygon', 'line', 'style');
+@@ -1263,3 +1267,60 @@ function gmap_views_plugins() {
+     ),
+   );
+ }
++
++/**
++ * Helper function that adds the required js and css for extinfowindow pop-ups.
++ */
++function gmap_add_extinfowindow() {
++  // Set js setting.
++  drupal_add_js(array('gmap' => array('extinfowindow' => variable_get('gmap_extinfowindow_active', FALSE))), 'setting');
++  // Add the extinfowindow js.
++  drupal_add_js(drupal_get_path('module', 'gmap') . '/thirdparty/extinfowindow/' . variable_get('gmap_extinfowindow_filename', 'extinfowindow_packed.js'));
++  // Find the active theme.
++  $theme = gmap_extinfowindow_themes(FALSE, variable_get('gmap_extinfowindow_theme', 'light'));
++  // Add the theme css.
++  drupal_add_css($theme['css_path']);
++}
++
++/**
++ * Get the themes for ExtInfoWindow.
++ *
++ * Gets default themes from the gmap module and additional themes from the active theme.
++ * An ext theme in the active theme will override one in the gmap module.
++ *
++ * @param $names
++ *   Whether to return names only or names with their paths.
++ * @param $theme_name
++ *   The name of a specific theme to return.  If omitted all themes will be returned.
++ *
++ * @return
++ *   Depending on parameters it could be:
++ *   - An array of theme names;
++ *   - An array of themes, with their name and the patch to their css;
++ *   - A single theme name string;
++ *   - An array of a single theme's name and path to css.
++ */
++function gmap_extinfowindow_themes($names = TRUE, $theme_name = '') {
++  global $theme;
++  $theme_path = drupal_get_path('theme', $theme);
++  $default_path = drupal_get_path('module', 'gmap') . '/thirdparty/extinfowindow/themes';
++
++  $default_themes = file_scan_directory($default_path, '.css');
++  $themes = file_scan_directory($theme_path . '/extinfowindow', '.css');
++  $themes = array_merge($default_themes, $themes);
++
++  $ext_themes = array();
++  foreach ($themes as $ext_theme) {
++    if ($names) {
++      $ext_themes[$ext_theme->name] = $ext_theme->name;
++    }
++    else {
++      $ext_themes[$ext_theme->name] = array(
++        'name' => $ext_theme->name,
++        'css_path' => $ext_theme->filename,
++      );
++    }
++  }
++
++  return $theme_name ? $ext_themes[$theme_name] : $ext_themes;
++}
+Index: gmap_settings_ui.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/gmap/gmap_settings_ui.inc,v
+retrieving revision 1.12.2.5
+diff -u -p -r1.12.2.5 gmap_settings_ui.inc
+--- gmap_settings_ui.inc	8 Jun 2010 20:49:13 -0000	1.12.2.5
++++ gmap_settings_ui.inc	23 Jun 2010 12:28:09 -0000
+@@ -621,6 +621,34 @@ function gmap_admin_settings(&$form_stat
+     '#maxlength' => 4,
+   );
+ 
++  // ExtInfoWindow Settings
++  $form['gmap_extinfowindow'] = array(
++    '#type' => 'fieldset',
++    '#title' => t('ExtInfoWindow'),
++    '#description' => t('ExtInfoWindow enables you to theme the pop info window using CSS. To use, you must download it from <a href="@url">here</a> and extract the appropriate file to the <em>thirdparty/extinfowindow</em> folder.', array('@url' => 'http://gmaps-utility-library-dev.googlecode.com/svn/tags/extinfowindow/1.2/src/')),
++    '#collapsible' => TRUE,
++    '#collapsed' => TRUE,
++  );
++  $form['gmap_extinfowindow']['gmap_extinfowindow_filename'] = array(
++    '#type' => 'textfield',
++    '#title' => t('Filename'),
++    '#description' => t('Name of downloaded file in the thirdparty/extinfowindow folder. Default: %default', array('%default' => 'extinfowindow_packed.js')),
++    '#default_value' => variable_get('gmap_extinfowindow_filename', 'extinfowindow_packed.js'),
++  );
++  $form['gmap_extinfowindow']['gmap_extinfowindow_active'] = array(
++    '#type' => 'checkbox',
++    '#title' => t('Enable GMap Ext Window'),
++    '#default_value' => variable_get('gmap_extinfowindow_active', FALSE),
++    '#description' => t('Enable/disable the GMap Ext Info Window'),
++  );
++  $form['gmap_extinfowindow']['gmap_extinfowindow_theme'] = array(
++    '#type' => 'select',
++    '#title' => t('Theme'),
++    '#default_value' => variable_get('gmap_extinfowindow_theme', 'light'),
++    '#options' => gmap_extinfowindow_themes(),
++    '#description' => t('The theme to use for the ext window inplementation.')
++  );
++
+   // @@@ Convert to element level validation.
+   $form['#validate'][] = 'gmap_admin_settings_validate';
+ 
+Index: js/marker.js
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/gmap/js/marker.js,v
+retrieving revision 1.4.2.1
+diff -u -p -r1.4.2.1 marker.js
+--- js/marker.js	8 Apr 2010 13:40:19 -0000	1.4.2.1
++++ js/marker.js	23 Jun 2010 12:28:09 -0000
+@@ -61,7 +61,18 @@ Drupal.gmap.addHandler('gmap', function 
+   obj.bind('clickmarker', function (marker) {
+     // Local/stored content
+     if (marker.text) {
+-      marker.marker.openInfoWindowHtml(marker.text);
++      // ExtInfoWindow implementation
++      if (Drupal.settings.gmap.extinfowindow) {
++        marker.marker.openExtInfoWindow(
++          obj.map,
++          'opacity_window',
++          marker.text,
++          {beakOffset: 2}
++        );
++      }
++      else {
++        marker.marker.openInfoWindowHtml(marker.text);
++      }
+     }
+     // AJAX content
+     if (marker.rmt) {
+@@ -79,7 +90,18 @@ Drupal.gmap.addHandler('gmap', function 
+       //  marker.marker.openInfoWindowHtml(Drupal.settings.loadingImage);
+       //}
+       $.get(uri, {}, function (data) {
+-        marker.marker.openInfoWindowHtml(data);
++        // ExtInfoWindow implementation
++        if (Drupal.settings.gmap.extinfowindow) {
++          marker.marker.openExtInfoWindow(
++            obj.map,
++            'opacity_window',
++            data,
++            {beakOffset: 2}
++          );
++        }
++        else {
++          marker.marker.openInfoWindowHtml(data);
++        }
+       });
+     }
+     // Tabbed content

@@ -1,0 +1,223 @@
+/* CSS 3 goodies... */
+
+a {
+-webkit-transition-property: color;
+-webkit-transition-duration:.8s;
+-webkit-transition-timing:ease-out;
+}
+
+#site-menu ul li a {
+-webkit-transition-property: background-color;
+-webkit-transition-duration:.8s;
+-webkit-transition-timing:ease-out;
+}
+
+
+#page {
+	-moz-box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+	-khtml-box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+	-webkit-box-shadow: 0px 0px 8px rgba(0,0,0,0.3);
+	}
+	
+.row-2 .grid-8,
+.row-2 .grid-4 {
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	}
+	
+.events-menu,
+.row-2 .grid-8,
+.row-2 .grid-4,
+.row-3 .grid-8,
+.row-3 .grid-4,
+.views_slideshow_singleframe_pager div img  {
+	-webkit-transition: all 0.1s ease-out;
+
+	}
+	
+
+
+.events-menu:hover,
+.row-2 .grid-8:hover,
+.row-2 .grid-4:hover,
+.row-3 .grid-8:hover,
+.row-3 .grid-4:hover {
+	-moz-box-shadow: 0px 0px 8px rgba(91,188,191,0.6);
+	-khtml-box-shadow: 0px 0px 8px rgba(91,188,191,0.6);
+	-webkit-box-shadow: 0px 0px 8px rgba(91,188,191,0.6);
+	}
+	
+.views_slideshow_singleframe_pager div img:hover {
+	-moz-box-shadow: 0px 0px 5px rgba(91,188,191,0.6);
+	-khtml-box-shadow: 0px 0px 5px rgba(91,188,191,0.6);
+	-webkit-box-shadow: 0px 0px 5px rgba(91,188,191,0.6);
+	}
+	
+img.reflect {
+	-webkit-box-reflect: below 5px
+    -webkit-gradient(linear, left top, left bottom, from(transparent),
+    color-stop(0.5, transparent), to(white));
+    margin-bottom: 70px;
+
+	}
+	
+.row-2 .grid-8,
+.row-2 .grid-4,
+.row-3 .grid-8,
+.row-3 .grid-4 {
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	}
+	
+#channel_intro p,
+#top-search label {
+	 text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.7);
+	 }
+
+.sidebar a:active,
+#main-content a:active,
+.form-submit:active,
+a.big-pink-button:active {
+  position: relative;
+  top: 1px;
+}
+
+
+/* Polaroid Gallery */
+
+
+/* By default, we tilt all our images -2 degrees */
+ul.gallery-cover-list .cover-image img {
+-webkit-transform: rotate(-2deg);
+-moz-transform: rotate(-2deg);
+}
+ 
+/* Rotate all even images 2 degrees */
+ul.gallery-cover-list li:nth-child(even) .cover-image img {
+-webkit-transform: rotate(2deg);
+-moz-transform: rotate(2deg);
+}
+ 
+/* Don't rotate every third image, but offset its position */
+ul.gallery-cover-list li:nth-child(3n) .cover-image img {
+-webkit-transform: none;
+-moz-transform: none;
+position: relative;
+top: -5px;
+}
+ 
+/* Rotate every fifth image by 5 degrees and offset it */
+ul.gallery-cover-list li:nth-child(5n) .cover-image img {
+-webkit-transform: rotate(5deg);
+-moz-transform: rotate(5deg);
+position: relative;
+right: 5px;
+}
+ 
+/* Keep default rotate for every eighth, but offset it */
+ul.gallery-cover-list li:nth-child(8n) .cover-image img {
+position: relative;
+top: 8px;
+right: 5px;
+}
+ 
+/* Keep default rotate for every eleventh, but offset it */
+ul.gallery-cover-list li:nth-child(11n) .cover-image img {
+position: relative;
+top: 3px;
+left: -5px;
+}
+
+ul.gallery-cover-list .cover-image a:hover img {
+-webkit-transform: scale(1.25);
+-moz-transform: scale(1.25);
+position: relative;
+z-index: 5;
+-webkit-transition: -webkit-transform .15s linear;
+}
+
+	
+.form-text,
+textarea	{
+
+-webkit-transition-property: border, -webkit-box-shadow;
+-webkit-transition-duration: 0.3s, 0.3s;
+-webkit-transition-timing-function: ease-out, ease-out;
+-webkit-transition-delay: initial, initial;
+}
+
+
+@-webkit-keyframes pinkPulse {
+from { background-color: @pink; -webkit-box-shadow:: 0 0 9px #EEFBFC; }
+50% { background-color: #F6357C; -webkit-box-shadow:: 0 0 18px #F6357C; }
+to { background-color: @pink; -webkit-box-shadow:: 0 0 9px #EEFBFC; }
+}
+
+#sidebar-right .big-pink-button {
+-webkit-animation-name: pinkPulse;
+-webkit-animation-duration: 2s;
+-webkit-animation-iteration-count: infinite;
+}
+	
+
+@-webkit-keyframes pulse {
+	from {
+		-webkit-transform: scale(1.0);
+		opacity: 0.75;
+	}
+	50% {
+		-webkit-transform: scale(1.2);
+		opacity: 1.0;
+	}
+	to { 
+		-webkit-transform: scale(1.0);
+		opacity: 0.75;
+	}
+}
+
+@-webkit-keyframes zoom {
+	from {
+		-webkit-transform: scale(1.0);
+		opacity: 0.75;
+	}
+	
+	to { 
+		-webkit-transform: scale(1.2);
+		opacity: 1;
+	}
+}
+
+img.pulse,
+img.zoom { opacity: 0.75; }
+
+
+
+img.pulse:hover { 
+	-webkit-animation-name: pulse; 
+	-webkit-animation-duration: 0.5s; 
+	-webkit-animation-iteration-count: 1; 
+}
+
+img.zoom:hover { 
+	-webkit-animation-name: zoom; 
+	-webkit-animation-duration: 0.5s; 
+	-webkit-animation-iteration-count: 1; 
+}
+	
+	/*
+
+
+@-webkit-keyframes spin {
+			  0% { -webkit-transform: rotateY(0);      }
+			100% { -webkit-transform: rotateY(360deg); }
+		}
+		
+		#logo {
+			-webkit-perspective: 1000;
+		}
+		#logo img:hover {
+			-webkit-animation: spin 5s linear infinite;
+		}
+	 */	

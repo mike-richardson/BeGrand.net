@@ -1,0 +1,18 @@
+name = WYSIWYG Image upload
+description = Image upload dialog for the most WYSIWYG Editors 
+dependencies[] = wysiwyg
+dependencies[] = jquery_ui
+dependencies[] = jquery_update
+dependencies[] = jquery_ui_dialog
+dependencies[] = imagecache
+package = WYSIWYG
+version = "6.x-1.0"
+core = "6.x"
+project = "wysiwyg_imageupload"
+
+; Information added by drupal.org packaging script on 2010-01-23
+version = "6.x-1.0-beta4"
+core = "6.x"
+project = "wysiwyg_imageupload"
+datestamp = "1264268709"
+

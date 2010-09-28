@@ -1,0 +1,159 @@
+Index: location.admin.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/location/location.admin.inc,v
+retrieving revision 1.17.2.6
+diff -u -p -r1.17.2.6 location.admin.inc
+--- location.admin.inc	27 May 2010 14:48:13 -0000	1.17.2.6
++++ location.admin.inc	24 Jun 2010 13:40:06 -0000
+@@ -94,6 +94,20 @@ function location_admin_settings() {
+     '#default_value' => variable_get('location_maplink_external_method', 'target="_blank"'),
+     '#description' => t('If you have selected to open map in a new window this controls the method used to open in a new window.  target="_blank" will just work but is not XTHML Strict compliant.  rel="external" is XHTML Strict compliant but will not open in a new window unless you add some jQuery to your site to add the target attribute. If you are unsure leave set to target="_blank"'),
+   );
++  $form['default_distance_unit'] = array(
++    '#type' => 'fieldset',
++    '#title' => t('Default distance unit'),
++  );
++  $form['default_distance_unit']['location_default_distance_unit'] = array(
++    '#type' => 'radios',
++    '#title' => t('How distances are provided in forms'),
++    '#options' => array(
++      'select' => t('Select box'),
++      'km' => t('Kilometers only'),
++      'mile' => t('Miles only'),
++    ),
++    '#default_value' => variable_get('location_default_distance_unit', 'select'),
++  );
+ 
+   return system_settings_form($form);
+ }
+Index: handlers/location_handler_field_location_distance.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/location/handlers/location_handler_field_location_distance.inc,v
+retrieving revision 1.2.2.2
+diff -u -p -r1.2.2.2 location_handler_field_location_distance.inc
+--- handlers/location_handler_field_location_distance.inc	28 Mar 2010 22:13:53 -0000	1.2.2.2
++++ handlers/location_handler_field_location_distance.inc	24 Jun 2010 13:40:06 -0000
+@@ -22,16 +22,26 @@ class location_handler_field_location_di
+   }
+ 
+   function extra_options_form(&$form, &$form_state) {
+-    $form['units'] = array(
+-      '#type' => 'radios',
+-      '#title' => t('Units'),
+-      '#options' => array(
+-        'km' => t('Kilometers'),
+-        'mi' => t('Miles'),
+-      ),
+-      '#description' => t('FIXME'),
+-      '#default_value' => $this->options['units'],
+-    );
++    $default_distance_unit = variable_get('location_default_distance_unit', 'select');
++    if ($default_distance_unit == 'select') {
++      $form['units'] = array(
++        '#type' => 'select',
++        '#options' => array(
++          'km' => t('Kilometers'),
++          'mile' => t('Miles'),
++        ),
++        '#default_value' => $this->options['units'],
++        '#title' => t('Distance units'),
++      );
++    }
++    else {
++      $form['units'] = array(
++        '#type' => 'radio',
++        '#title' => t('Distances in: ') . ($default_distance_unit == 'km' ? t('Kilometers') : t('Miles')),
++        '#return_value' => $default_distance_unit,
++        '#value' => $default_distance_unit,
++      );
++    }
+     $form['origin'] = array(
+       '#type' => 'radios',
+       '#title' => t('Origin'),
+Index: handlers/location_handler_sort_location_distance.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/location/handlers/location_handler_sort_location_distance.inc,v
+retrieving revision 1.1
+diff -u -p -r1.1 location_handler_sort_location_distance.inc
+--- handlers/location_handler_sort_location_distance.inc	3 Dec 2008 22:51:23 -0000	1.1
++++ handlers/location_handler_sort_location_distance.inc	24 Jun 2010 13:40:06 -0000
+@@ -22,16 +22,26 @@ class location_handler_sort_location_dis
+   }
+ 
+   function extra_options_form(&$form, &$form_state) {
+-    $form['units'] = array(
+-      '#type' => 'radios',
+-      '#title' => t('Units'),
+-      '#options' => array(
+-        'km' => t('Kilometers'),
+-        'mi' => t('Miles'),
+-      ),
+-      '#description' => t('FIXME'),
+-      '#default_value' => $this->options['units'],
+-    );
++    $default_distance_unit = variable_get('location_default_distance_unit', 'select');
++    if ($default_distance_unit == 'select') {
++      $form['units'] = array(
++        '#type' => 'select',
++        '#options' => array(
++          'km' => t('Kilometers'),
++          'mile' => t('Miles'),
++        ),
++        '#default_value' => $this->options['units'],
++        '#title' => t('Distance units'),
++      );
++    }
++    else {
++      $form['units'] = array(
++        '#type' => 'radio',
++        '#title' => t('Distances in: ') . ($default_distance_unit == 'km' ? t('Kilometers') : t('Miles')),
++        '#return_value' => $default_distance_unit,
++        '#value' => $default_distance_unit,
++      );
++    }
+     $form['origin'] = array(
+       '#type' => 'radios',
+       '#title' => t('Origin'),
+Index: handlers/location_views_handler_filter_proximity.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/location/handlers/location_views_handler_filter_proximity.inc,v
+retrieving revision 1.3.2.2
+diff -u -p -r1.3.2.2 location_views_handler_filter_proximity.inc
+--- handlers/location_views_handler_filter_proximity.inc	20 Apr 2010 00:48:16 -0000	1.3.2.2
++++ handlers/location_views_handler_filter_proximity.inc	24 Jun 2010 13:40:06 -0000
+@@ -141,14 +141,27 @@ class location_views_handler_filter_prox
+       '#default_value' => $this->value['search_distance'],
+     );
+ 
+-    $form['value']['search_units'] = array(
+-      '#type' => 'select',
+-      '#options' => array(
+-        'mile' => t('Miles'),
+-        'km' => t('Kilometers'),
+-      ),
+-      '#default_value' => $this->value['search_units'],
+-    );
++    $default_distance_unit = variable_get('location_default_distance_unit', 'select');
++    if ($default_distance_unit == 'select') {
++      $form['value']['search_units'] = array(
++        '#type' => 'select',
++        '#options' => array(
++          'km' => t('Kilometers'),
++          'mile' => t('Miles'),
++        ),
++        '#default_value' => $this->value['search_units'],
++      );
++    }
++    else {
++      $form['value']['search_units'] = array(
++        '#type' => 'value',
++        '#value' => $default_distance_unit,
++      );
++      $form['value']['display_unit'] = array(
++        '#type' => 'markup',
++        '#value' => t('Distance in: ') . ($default_distance_unit == 'km' ? t('Kilometers') : t('Miles')),
++      );
++    }
+   }
+ 
+   function exposed_form(&$form, &$form_state) {

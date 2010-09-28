@@ -1,0 +1,15 @@
+; $Id: taxonomy_vtn_terms_blocks.info,v 1.1.2.1 2009/05/09 10:27:59 alexiswilke Exp $
+name = Taxonomy VTN Terms Blocks
+description = "Terms blocks for Taxonomy VTN."
+package = Taxonomy VTN
+dependencies[] = taxonomy
+dependencies[] = taxonomy_vtn
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2009-08-01
+version = "6.x-1.4"
+core = "6.x"
+project = "taxonomy_vtn"
+datestamp = "1249162858"
+

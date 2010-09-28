@@ -1,0 +1,107 @@
+<?php 
+// $Id: nodedump.module,v 1.1 2010/05/12 00:40:32 pglatz Exp $
+
+/** 
+ * @file 
+ * 
+ * Provide admin tool to dump node conents
+ * 
+ */ 
+
+function nodedump_menu() {
+  $items = array();
+  
+  $items['admin/content/nodedump'] = array(
+    'title' => 'Node Dumper',
+    'description' => 'Dump the content of nodes to the screen.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('nodedump_request_form'),
+    'access arguments' => array('administer site configuration'),
+    );
+  
+  return $items;
+}
+
+
+function nodedump_request_form($form_values = NULL) {
+  $form = array();
+  $form['#redirect'] = FALSE;
+  $form['nid'] = array(
+    '#description' => 'Enter the id of a node to dump.',
+    '#type' => 'textfield',
+    '#title' => t('Node ID'),
+    '#required' => TRUE,
+    '#maxlength' => 10,
+    '#size' => 10,
+    '#default_value' => variable_get('nodedump_last_nid', '')
+  );
+  $form['submit'] = array(
+    '#prefix' => '<br />',
+    '#type' => 'submit',
+    '#value' => t('Search'),
+  );
+
+  if ($form_values) {
+    // we have results; do the search
+    $nid = $form_values['post']['nid'];
+    if ($n = node_load($nid)) {
+      $output = 'created: ' . format_date($n->created) . '<br />';
+      $output .= 'changed: ' . format_date($n->changed) . '<br /><br />';
+      
+      // we want to preserve the indentation of print_r, so we will replace all leading blanks with
+      // non-breaking spaces
+      $dump = split("\n", print_r($n, 1));
+      foreach ($dump as $line) {
+        $found = FALSE;
+        for ($i=0; $i < strlen($line); $i++) {
+          $char = $line[$i];
+          switch ($char) {
+            case ' ':
+              if (!$found) {
+                $char = '&nbsp;';
+              }
+              break;
+            case '<':
+              $char = '&lt;';
+              break;
+            case '>':
+              $char = '&gt;';
+              break;
+            default:
+              break;
+          }
+          if (!$found && ($line[$i] != ' ')) {
+            $found = TRUE;
+          }
+          $output .= $char;
+        }
+        $output .= '<br />';
+      }
+    }
+    else {
+      $output = 'no node found';
+    }
+
+    // now display the results
+    $form['results'] = array(
+      '#type' => 'item',
+      '#value' => '<div class="nodedumper"><tt>'. $output .'</tt></div>'
+    );
+  }
+  
+  return $form;
+}
+
+
+/***
+* form submit hook
+* 
+* @param mixed $form
+* @param mixed $form_state
+*/
+function nodedump_request_form_submit($form, &$form_state) {
+  variable_set('nodedump_last_nid', $form_state['values']['nid']);
+}
+
+
+

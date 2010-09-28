@@ -1,0 +1,150 @@
+<?php
+// $Id: ajax_slideshow.module,v 1.1 2009/10/17 12:43:31 udig Exp $
+/**
+ * @file AJAX Slideshow
+ */
+ 
+
+define('AJAX_SLIDESHOW_PERM_ADMIN', 'administer ajax slideshow');
+
+/**
+ * Implementation of hook_help()
+ */
+function ajax_slideshow_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#ajax_slideshow':
+    return '<p>'. t('Enables slideshow using AJAX. For more information, please see the readme file inside the module directory') .'</p>';
+  }
+}
+
+/**
+ * Implementation of hook_perm()
+ */
+function ajax_slideshow_perm() {
+  $perms = array();
+  return $perms;
+}
+
+/**
+* Implementation of hook_menu().
+*/
+function ajax_slideshow_menu() {
+  $items['photos/get/photos'] = array(
+    'page callback' => 'ajax_slideshow_get_node_ajax',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+
+  $items['slideshow-front'] = array(
+    'page callback' => 'ajax_slideshow_front',
+    'type' => MENU_CALLBACK,
+    'access arguments' => array('access content'),
+  );
+
+  $items['admin/settings/ajax_slideshow'] = array(
+    'title' => 'AJAX Slideshow',
+    'description' => 'Setup the AJAX slideshow.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('ajax_slideshow_admin_settings'),
+    'access arguments' => array(AJAX_SLIDESHOW_PERM_ADMIN),
+    'type' => MENU_NORMAL_ITEM
+  );
+  
+  return $items;
+}
+
+/**
+ * Admin settings form function
+ * @return admin settings form
+ */
+function ajax_slideshow_admin_settings() {
+  $form = array();
+
+  $form['ajax_slideshow_frontpage_nid'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Slideshow Frontpage node id'),
+    '#default_value' => variable_get('ajax_slideshow_frontpage_nid', ''),
+    '#description' => t('Specify here the path to the node that should appear while the slideshow loads.'),
+  );
+
+  $form['ajax_slideshow_slide_duration'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Slides duration'),
+    '#default_value' => variable_get('ajax_slideshow_slide_duration', 5000),
+    '#description' => t('Specify here the duration between slides (in miliseconds).'),
+  );
+
+  $form['ajax_slideshow_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Slideshow Height'),
+    '#default_value' => variable_get('ajax_slideshow_height', 500),
+    '#description' => t('Specify here the slideshow fixed height to prevent content jogging due to variation of nodes height.'),
+  );
+
+  return system_settings_form($form);
+}
+
+/** 
+* Node retrieving function called via ajax
+*/ 
+function ajax_slideshow_get_node_ajax($nid) {
+  $node = node_load(array('nid' => $nid)); 
+  if (node_access('view', $node)) {
+    $output = node_view($node);
+    print drupal_to_js(array('node' => $output));
+  } 
+  else {
+    print drupal_to_js(array('node' => t('Access Denied')));
+    watchdog('access denied', t('Access denied to requested node !nid by ajax_slideshow module.', array('!nid' => $node->nid)));
+  }  
+}
+
+/**
+ * callback function for showing the slideshow page
+ * @return the slide show page themed contents.
+ */
+function ajax_slideshow_front() {
+  
+  $output = '';
+  // add intro content before the slideshow begins (if exists)
+  $front_nid = variable_get('ajax_slideshow_frontpage_nid', '');
+  if (($front_nid) && (node_access('view', ($node = node_load(array('nid' => $front_nid)))))) {
+    $output = node_view($node);
+  }
+  $output = '<div id="slideshow-front-content">'.$output.'</div>';
+  // add the slideshow view providing the nids for the ajax calls
+  $output .= '<div id="slideshow-view">'.views_embed_view('ajax_slideshow_view', 'default').'</div>';
+  // add the slideshow placeholder div 
+  $output = '<div id="slideshow-input-wrapper">'.$output.'</div>';
+  
+  return $output;
+}
+
+/**
+ * Attaching the slideshow view 
+ */
+function ajax_slideshow_views_api() {
+
+  return array('api' => 2, 'path' => drupal_get_path('module', 'ajax_slideshow').'/includes' );
+}
+
+/**
+* Attaching the js and css files only when the relevant view is called.
+*/
+function ajax_slideshow_views_pre_view(&$view) {  
+  if ($view->name == 'ajax_slideshow_view') {
+    $path = drupal_get_path('module', 'ajax_slideshow');
+
+    drupal_add_js($path.'/ajax_slideshow.js');
+    drupal_add_css($path.'/ajax_slideshow.css');
+
+    $js_settings = array(
+      slide_duration => variable_get('ajax_slideshow_slide_duration', 5000),
+    );
+    drupal_add_js(array('ajax_slideshow' => $js_settings), 'setting');
+
+    $slideshow_height = variable_get('ajax_slideshow_height', '').'px';
+    drupal_set_html_head("<style type='text/css'>#slideshow-output-wrapper {height: $slideshow_height}</style>");    
+  }
+}
+

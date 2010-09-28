@@ -1,0 +1,72 @@
+/* $Id: taxonomy_vtn.css,v 1.1.2.6 2009/01/26 05:52:54 alexiswilke Exp $ */
+
+.taxonomy-vtn-references {
+  padding-top: 20px;
+  padding-bottom: 10px;
+  text-align: center;
+}
+
+table.taxonomy-vtn-vocabularies, table.taxonomy-vtn-terms, table.taxonomy-vtn-nodes {
+  width: 100%;
+}
+
+.taxonomy-vtn-vocabularies td, .taxonomy-vtn-terms td, .taxonomy-vtn-nodes td {
+  background-color: white;
+  width: 50%;
+  vertical-align: top;
+}
+
+.taxonomy-vtn-vocabularies td h3, .taxonomy-vtn-terms td h3, .taxonomy-vtn-nodes td h3 {
+  background-color: #fcfcfc;
+  padding: 2px;
+  margin: 0.5em 0pt 0.5em;
+  border-bottom: 1px solid gray;
+}
+
+.taxonomy-vtn-vocabularies td div, .taxonomy-vtn-terms td div, .taxonomy-vtn-nodes td div {
+  /*margin: 0px 0px 30px;*/
+  margin: 0px;
+  padding: 0px;
+}
+
+.taxonomy-vtn-vocabularies td div ul, .taxonomy-vtn-terms td div ul, .taxonomy-vtn-nodes td div ul {
+  /*padding: 0px;*/
+  padding: 0px 0px 30px;
+}
+
+.taxonomy-vtn-vocabularies td div ul.simple-list, .taxonomy-vtn-terms td div ul.simple-list, .taxonomy-vtn-nodes td div ul.simple-list {
+  padding: 0px;
+}
+
+.taxonomy-vtn-index-link {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.taxonomy-vtn-node-description {
+  padding: 0px;
+  margin: 0px;
+}
+
+.taxonomy-vtn-description p {
+  padding: 0px;
+  margin: 0px;
+}
+
+.taxonomy-vtn-related-terms {
+  margin-top: 3px;
+  font-size: 0.8em;
+  font-style: italic;
+}
+
+.taxonomy-vtn-synonyms {
+  margin-top: 3px;
+  font-size: 0.8em;
+  font-style: italic;
+}
+
+.taxonomy-vtn-node-description {
+  padding: 0px;
+  margin: 20px 0px;
+}
+

@@ -1,0 +1,78 @@
+<?php
+// $Id$
+/**
+ * @file
+ * GetClicky: Adds the GetClicky tracking system to your website.
+ *
+ */
+
+function getclicky_install() {
+  $result = db_query('SELECT * FROM {role} ORDER BY name');
+
+  while ($role = db_fetch_object($result)) {
+    $gc_role = 'getclicky_track_'. $role->rid;
+
+    // check if variable is not already set from a previous install
+    if (strpos(variable_get($gc_role, 'new'), 'new') !== FALSE) {
+      variable_set($gc_role, FALSE);
+    }
+  }
+}
+
+function getclicky_uninstall() {
+  $result = db_query("DELETE FROM {variable} WHERE name LIKE 'getclicky_%'");
+}
+
+
+function getclicky_update_1() {
+  $ret = array();
+
+  $result = db_query("SELECT * FROM {role}");
+  while ($role = db_fetch_object($result)) {
+    // can't use empty spaces in varname
+    $role_varname = str_replace(' ', '_', $role->name);
+    variable_set('getclicky_track_'. $role->rid, !variable_get("getclicky_track_{$role_varname}", FALSE));
+    variable_del("getclicky_track_{$role_varname}");
+  }
+  variable_set('getclicky_track__user1', TRUE);
+
+  return $ret;
+}
+
+
+/**
+ * Harmless migration of some variable values - from old names to new ones.
+ */
+function getclicky_update_6100() {
+
+  variable_set("site_id_number", variable_get("getclicky_account",'') );
+  variable_del("getclicky_account");
+
+  variable_set("show_getclicky_banner_image", variable_get("getclicky_image",'') );
+  variable_del("getclicky_image");
+
+
+}
+
+
+/**
+ * Harmless migration of some variable values - from old names to new ones - part 2.
+ */
+function getclicky_update_6101() {
+
+// jjj: site_id_number - getclicky_site_id_number
+// jjj: show_getclicky_banner_image - getclicky_show_banner_image
+
+  variable_set("getclicky_site_id_number", variable_get("site_id_number",'') );
+  variable_del("site_id_number");
+
+  variable_set("getclicky_show_banner_image", variable_get("show_getclicky_banner_image",'') );
+  variable_del("show_getclicky_banner_image");
+
+
+}
+
+
+
+
+

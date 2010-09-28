@@ -1,0 +1,34 @@
+<?php
+// $Id: taxonomy_vtn_blocks.install,v 1.1.2.4 2009/07/26 21:39:07 alexiswilke Exp $
+
+/**
+ * @file
+ * The installation file, now only to delete variables
+ *
+ */
+
+
+/**
+ * Implementation of hook_enable().
+ */
+function taxonomy_vtn_blocks_enable() {
+  drupal_set_message(t('The Taxonomy VTN Block module has been enabled. You may wish to go to <a href="!url">the block settings page</a>.', array('!url' => url('admin/build/block/configure/taxonomy_vtn_blocks/0'))));
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function taxonomy_vtn_blocks_uninstall() {
+  variable_del('taxonomy_vtn_blocks_show_empty_vocs');
+  variable_del('taxonomy_vtn_blocks_show_voc_desc');
+  variable_del('taxonomy_vtn_blocks_show_count_terms');
+  variable_del('taxonomy_vtn_blocks_show_count_nodes');
+  variable_del('taxonomy_vtn_block_omit');
+  variable_del('taxonomy_vtn_block_include');
+
+  watchdog('Taxonomy VTN Block', 'Taxonomy VTN Block module uninstalled by @user.', array('@user' => $user->name));
+  drupal_set_message(t('The Taxonomy VTN Block module has been uninstalled.'), 'status');
+}
+
+// TODO: fix the omit/include variable names (missing 's' after block) or vice versa

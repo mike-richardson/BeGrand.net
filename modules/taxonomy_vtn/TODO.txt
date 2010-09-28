@@ -1,0 +1,11 @@
+$ Id:
+
+T O D O
+=========
+- add depth for display terms
+- nodes without category?
+
+- count synonyms for count term?
+- if show empty terms is FALSE then the vocabularies count of terms is bad
+
+- use a table for our data (terms/nodes selection)

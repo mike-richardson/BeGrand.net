@@ -1,0 +1,13 @@
+; $Id: ud.info,v 1.1 2009/10/18 16:34:10 swentel Exp $
+name = "User displays"
+description = "Extended profile display options"
+core = "6.x"
+dependencies[] = ds
+package = "Display suite"
+
+; Information added by drupal.org packaging script on 2010-02-27
+version = "6.x-1.x-dev"
+core = "6.x"
+project = "ud"
+datestamp = "1267229881"
+

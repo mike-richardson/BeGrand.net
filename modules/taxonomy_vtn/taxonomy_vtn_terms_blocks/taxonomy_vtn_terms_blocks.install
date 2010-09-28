@@ -1,0 +1,28 @@
+<?php
+// $Id: taxonomy_vtn_terms_blocks.install,v 1.1.2.1 2009/05/09 10:27:59 alexiswilke Exp $
+
+/**
+ * @file
+ * The installation file, now only to delete variables
+ *
+ */
+
+
+/**
+ * Implementation of hook_enable().
+ */
+function taxonomy_vtn_terms_blocks_enable() {
+  drupal_set_message(t('The Taxonomy VTN Terms Blocks module has been enabled. Setup blocks in the <a href="!url">block settings page</a>.', array('!url' => url('admin/build/block/configure'))));
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function taxonomy_vtn_terms_blocks_uninstall() {
+  db_query("DELETE FROM {variable} WHERE name LIKE 'taxonomy_vtn_terms_blocks_%'");
+
+  watchdog('Taxonomy VTN Terms Blocks', 'Taxonomy VTN Terms Blocks module uninstalled by @user.', array('@user' => $user->name));
+  drupal_set_message(t('The Taxonomy VTN Terms Blocks module has been uninstalled.'), 'status');
+}
+

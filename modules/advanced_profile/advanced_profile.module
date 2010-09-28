@@ -1,0 +1,249 @@
+<?php
+// $Id: advanced_profile.module,v 1.26.4.23 2009/08/18 20:28:18 michellec Exp $
+
+/**
+ * @file
+ * Provides building blocks for creating an enhanced user profile pages.
+ */
+
+// DRUPAL HOOKS **************************************************************/
+
+/**
+ * Implementation of hook_perm().
+ */
+function advanced_profile_perm() {
+  return array('administer advanced profile');
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function advanced_profile_init() {
+  // Add some basic CSS to the profile.
+  drupal_add_css(drupal_get_path('module', 'advanced_profile') . '/theme/advanced_profile.css');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function advanced_profile_menu() {
+  // Add menu entry for settings page
+  $items["admin/settings/advanced-profile"] = array(
+      'title' => 'Advanced Profile',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('advanced_profile_settings_page'),
+      'access arguments' => array('administer advanced profile'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function advanced_profile_theme() {
+  $items['advanced_profile_visitors'] = array(
+      'template' => 'theme/advanced_profile_visitors',
+      'arguments' => array('account' => NULL),
+  );
+  
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme_registry_alter().
+ */
+function advanced_profile_theme_registry_alter(&$theme_registry) {
+  // --- The following section manipulates the theme registry so the .tpl files
+  // --- for the given templates can be found first in the (sub)theme directory
+  // --- then in ancestor themes, then in the advanced profile theme directory.
+
+  // Affected templates
+  $templates = array('author_pane',
+                     'advanced_profile_visitors',
+                );
+
+  // Find all our ancestor themes and put them in an array.
+  global $theme;
+  $themes = list_themes();
+
+  $ancestor_paths = array();
+  $ancestor = $theme;
+  while ($ancestor && isset($themes[$ancestor]->base_theme)) {
+    array_unshift($ancestor_paths, dirname($themes[$themes[$ancestor]->base_theme]->filename));
+    $ancestor = $themes[$ancestor]->base_theme;
+  }
+
+  $template_path = drupal_get_path('module', 'advanced_profile') . '/theme';
+  foreach ($templates as $template) {
+    // Sanity check in case the template is not being used.
+    if (is_array($theme_registry[$template])) {
+      // If there was a path in there, store it.
+      $existing_path = array_shift($theme_registry[$template]['theme paths']);
+
+      // Slide the paths we are adding in before the existing one.
+      array_unshift($theme_registry[$template]['theme paths'], $existing_path, $template_path);
+
+      // If there are any ancestor paths (ie: we are in a subtheme, add those)
+      foreach ($ancestor_paths as $ancestor_path) {
+        $theme_registry[$template]['theme paths'][] = $ancestor_path;
+      }
+
+      // Put the active theme's path last since that takes precidence.
+      $theme_registry[$template]['theme paths'][] = path_to_theme();
+    }
+  }
+}
+
+
+// SETTINGS ****************************************************************/
+
+/**
+ * Creates a form for the settings page to administer the module.
+ */
+function advanced_profile_settings_page() {
+  $form['advanced_profile_redirect_from_node'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Redirect from profile node to user page'),
+    '#default_value' => variable_get('advanced_profile_redirect_from_node', TRUE),
+    '#description' => t('If checked, attempting to go to the profile node will redirect you to the user page. This only affects the full node page and not viewing the node elsewhere. This specifically works with the uprofile node type that ships with APK and will not work if you are using a different node type.'),
+  );
+
+  // *** Profile visitors settings ****
+  $form['advanced_profile_visitors'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Profile visitors'),
+    '#collapsible' => TRUE,
+    '#collapsed' => FALSE,
+  );
+
+  // Limit.
+  $form['advanced_profile_visitors']['advanced_profile_visitors_limit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of entries'),
+    '#size' => 5,
+    '#default_value' => variable_get('advanced_profile_visitors_limit', 5),
+    '#description' => t('Number of visitor entries to display.'),
+  );
+
+  // Distinct visitors.
+  $form['advanced_profile_visitors']['advanced_profile_visitors_distinct'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show only the last visit from each user'),
+    '#default_value' => variable_get('advanced_profile_visitors_distinct', FALSE),
+  );
+
+  // Interval granularity.
+  $form['advanced_profile_visitors']['advanced_profile_visitors_interval_granularity'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Granularity of time ago'),
+    '#size' => 5,
+    '#default_value' => variable_get('advanced_profile_visitors_interval_granularity', 2),
+    '#description' => t('1 gives you "1 hour ago". 2 gives you "1 hour 4 minutes ago". 3 gives you "1 hour 4 minutes and 2 seconds ago"'),
+  );
+
+  // Role exclusion.
+  $roles_options = user_roles(TRUE);
+  $form['advanced_profile_visitors']['advanced_profile_visitors_excluded_roles'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Roles to exclude'),
+    '#options' => $roles_options,
+    '#default_value' => variable_get('advanced_profile_visitors_excluded_roles', array()),
+    '#description' => t('Check roles to exclude users in those roles from the listing. Warning: using this on highly populated roles could cause performance issues. It\'s meant for admins.')
+  );
+
+  // Send our form to Drupal to make a settings page.
+  return system_settings_form($form);
+}
+
+// MASTER INCLUDES ***********************************************************/
+if (module_exists('panels')) {
+  module_load_include('inc', 'advanced_profile', 'includes/panels/panels');
+}
+
+if (module_exists('views')) {
+  module_load_include('inc', 'advanced_profile', 'includes/views/views');
+}
+
+module_load_include('inc', 'advanced_profile', 'includes/theme');
+
+
+// GENERAL UTILITY FUNCTIONS *************************************************/
+
+/**
+ * Returns recent visitors to a profile page excluding that user and anonymous.
+ */
+function advanced_profile_visitors($uid) {
+  if (module_exists('statistics')) {
+    if (empty($uid)) {
+      $uid = arg(1);
+    }
+
+    // Retrieve the options from the variables
+    $interval_granularity = variable_get('advanced_profile_visitors_interval_granularity', 2);
+    $distinct = variable_get('advanced_profile_visitors_distinct', FALSE);
+    $limit = variable_get('advanced_profile_visitors_limit', 5);
+    $excluded_roles = variable_get('advanced_profile_visitors_excluded_roles', array());
+
+    // This bit is to take the array from the checkboxes on the settings page
+    // and put it into a comma separate string. There may be an array function
+    // that will do this better.
+    $exclude_array = array();
+    foreach ($excluded_roles as $key => $role_id) {
+      if ($key > 0 && $role_id > 0) {
+        $exclude_array[] = $key;
+      }
+    }
+
+    $excluded_users = array();
+
+    if (!empty($exclude_array)) {
+      $excluded_roles = implode(',', $exclude_array);
+      $placeholders = implode(',', array_fill(0, count($exclude_array), '%d'));
+
+      // Get a list of UIDs in the excluded roles
+      $sql = "SELECT ur.uid
+              FROM {users_roles} ur
+              WHERE ur.rid IN ($placeholders)";
+      $result = db_query($sql, $excluded_roles);
+      while ($account = db_fetch_object($result)) {
+        $excluded_users[] = $account->uid;
+      }
+    }
+
+    // TODO: If a "user invisible" module gets written, retrieve a list of
+    // invisible UIDs here.
+
+    // Get the last 1000 visitors to the profile which should give us plenty
+    // to work with.
+    $sql = "SELECT a.uid, u.name, a.timestamp
+            FROM {accesslog} a
+              INNER JOIN {users} u ON a.uid = u.uid
+            WHERE a.uid <> %d
+              AND a.uid > 0
+              AND a.path LIKE 'user/%d%%'
+            ORDER BY a.timestamp DESC
+            ";
+    $result = db_query_range($sql, $uid, $uid, 0, 1000);
+
+    $items = array();
+    $used_uids = array();
+    $used_items = 0;
+    while (($log = db_fetch_object($result)) && ($used_items < $limit)) {
+      if (!in_array($log->uid, $excluded_users) && (!$distinct || !in_array($log->uid, $used_uids))) {
+        // User isn't an excluded user and we either don't care about distinct
+        // or this user hasn't been added to the list, yet.
+        $used_items++;
+        $used_uids[] = $log->uid;
+        $items[] = theme('username', $log) . " " . format_interval(time() - $log->timestamp, $interval_granularity) . t(" ago.");
+      }
+    }
+  }
+  else {
+    $items[] = t("Warning: Statistics module not enabled.");
+  }
+
+  return $items;
+}
+
+

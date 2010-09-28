@@ -1,0 +1,261 @@
+<?php
+// $Id: taxonomy_vtn_terms_blocks.module,v 1.1.2.1 2009/05/09 10:27:59 alexiswilke Exp $
+
+
+/**
+ * @file
+ * main file for module providing a block
+ */
+
+/**
+ * Get a list of terms to include/exclude.
+ * In case users do not put spaces, we remove them here.
+ *
+ * @param[in] $list  The name of the global variable
+ *
+ * @return NULL or an array of identifiers
+ */
+function _taxonomy_vtn_terms_block_get_list($list) {
+  $result = NULL;
+
+  $r = explode(',', str_replace(' ', '', variable_get($list, '')));
+  foreach($r as $id) {
+    if (is_numeric($id)) {
+      $result[$id] = $id;
+    }
+  }
+
+  return $result;
+}
+
+
+/**
+ * Create the form elements used to configure these
+ * blocks.
+ *
+ * \return An array to attach to the block form.
+ */
+function _taxonomy_vtn_terms_blocks_configure($vocid) {
+  $form = array();
+
+  $form['taxonomy_vtn_terms_blocks_show_voc_desc'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Show the vocabulary description"),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_show_voc_desc_for_'.$vocid, 0),
+  );
+  $form['taxonomy_vtn_terms_blocks_max_count'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of terms to show'),
+    '#description' => t('If you have that many terms or less, show all of them. Otherwise randomly select that number of terms. Use 0 to show all the terms.'),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_max_count_for_'.$vocid, 0),
+  );
+  $form['taxonomy_vtn_terms_blocks_show_unused_terms'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Show unused terms"),
+    '#description' => t('<span style="color: red;">IMPORTANT NOTE:</a> This flag is ignored if the nodes are not counted since when we do not count the nodes we cannot know whether a term is in use or not.'),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_show_unused_terms_for_'.$vocid, 0),
+  );
+  $form['taxonomy_vtn_terms_blocks_show_term_desc'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Show term description"),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_show_term_desc_for_'.$vocid, 0),
+  );
+  $form['taxonomy_vtn_terms_blocks_show_count_terms'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Show the total number of terms"),
+    '#description' => t('The number of terms is known and can be shown at the bottom of the block. Does not work well with <em>Number of terms to show</em>.'),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_show_count_terms_for_'.$vocid, 0),
+  );
+  $form['taxonomy_vtn_terms_blocks_show_count_nodes'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Show count of nodes"),
+    '#description' => t('<span style="color: red;">IMPORTANT NOTE:</a> This may slow your site since the taxonomy blocks are not cached and a heavy SQL command is required to count all the nodes.'),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_show_count_nodes_for_'.$vocid, 0),
+  );
+  $form['taxonomy_vtn_terms_blocks_omit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Exclude terms by identifiers'),
+    '#description' => t('Example: 1, 3, 11, 5'),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_omit_for_'.$vocid, '')
+  );
+  $form['taxonomy_vtn_terms_blocks_include'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Include terms by identifiers'),
+    '#description' => t('Example: 1, 3, 11, 5'),
+    '#default_value' => variable_get('taxonomy_vtn_terms_blocks_include_for_'.$vocid, '')
+  );
+
+  return $form;
+}
+
+/**
+ * Save the terms setup.
+ *
+ * \param[in] $edit The form with the data to be saved.
+ */
+function _taxonomy_vtn_terms_blocks_save($vocid, $edit) {
+  variable_set('taxonomy_vtn_terms_blocks_show_voc_desc_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_show_voc_desc']);
+  variable_set('taxonomy_vtn_terms_blocks_max_count_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_max_count']);
+  variable_set('taxonomy_vtn_terms_blocks_show_unused_terms_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_show_unused_terms']);
+  variable_set('taxonomy_vtn_terms_blocks_show_term_desc_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_show_term_desc']);
+  variable_set('taxonomy_vtn_terms_blocks_show_count_terms_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_show_count_terms']);
+  variable_set('taxonomy_vtn_terms_blocks_show_count_nodes_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_show_count_nodes']);
+  variable_set('taxonomy_vtn_terms_blocks_omit_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_omit']);
+  variable_set('taxonomy_vtn_terms_blocks_include_for_'.$vocid, $edit['taxonomy_vtn_terms_blocks_include']);
+}
+
+/**
+ * Generate the block content if possible.
+ */
+function _taxonomy_vtn_terms_blocks_view($vocid) {
+  // only show block if user has perm to view it
+  if (!user_access('access taxonomy_vtn')) {
+    return array();
+  }
+
+  $voc = taxonomy_vocabulary_load($vocid);
+
+  $arr = array();
+
+  $show_voc_desc = variable_get('taxonomy_vtn_terms_blocks_show_voc_desc_for_'.$vocid, 0);
+  $show_max_count = variable_get('taxonomy_vtn_terms_blocks_max_count_for_'.$vocid, 0);
+  $show_unused_terms = variable_get('taxonomy_vtn_terms_blocks_show_unused_terms_for_'.$vocid, 0);
+  $show_term_desc = variable_get('taxonomy_vtn_terms_blocks_show_term_desc_for_'.$vocid, 0);
+  $show_count_terms = variable_get('taxonomy_vtn_terms_blocks_show_count_terms_for_'.$vocid, 0);
+  $show_count_nodes = variable_get('taxonomy_vtn_terms_blocks_show_count_nodes_for_'.$vocid, 0);
+
+  $show_edit_link = user_access('administer taxonomy_vtn')
+    && user_access('administer taxonomy')
+    && variable_get('taxonomy_vtn_edit_terms', 0) == 1;
+  $edit_link = '';
+
+  $format = variable_get("taxonomy_vtn_terms_format$vocid", TAXONOMY_VTN_DEFAULT_FORMAT);
+  if ($format == TAXONOMY_VTN_DEFAULT_FORMAT) {
+    $format = FILTER_FORMAT_DEFAULT;
+  }
+
+  $all_terms = taxonomy_get_tree($vocid);
+
+  // limit the number of terms if necessary
+  $tcount = count($all_terms);
+  if ($show_max_count > 0 && $show_max_count < $tcount) {
+    // randomize so different terms show up each time
+    shuffle($all_terms);
+    // IMPORTANT: I do not slice here because we don't yet know
+    //            which term will be kept...
+  }
+  else {
+    // in case we have 0 or a negative number
+    $show_max_count = $tcount;
+  }
+
+  $omit_terms = _taxonomy_vtn_block_get_list('taxonomy_vtn_terms_blocks_omit_for_'.$vocid);
+  if (!$omit_terms) {
+    $omit_terms = array();
+  }
+
+  $include_terms = _taxonomy_vtn_block_get_list('taxonomy_vtn_terms_blocks_include_for_'.$vocid);
+
+  require_once('./'. drupal_get_path('module', 'taxonomy_vtn') .'/taxonomy_vtn_overwrites.inc.php');
+  $tcount = 0;
+  foreach ($all_terms as $term) {
+
+    // include/exclude user specified terms and avoid duplicates
+    if (($include_terms === NULL || in_array($term->tid, $include_terms)) &&
+        !in_array($term->tid, $omit_terms)) {
+      // avoid handling the same term twice
+      $omit_terms[] = $term->tid;
+
+      if ($show_count_nodes) {
+        $count_n = _taxonomy_vtn_count_nodes(array($term->tid), 'all');
+        $count_nodes = ' ('. $count_n .')';
+      }
+
+      if ($show_term_desc) {
+        $term_desc = '<br/><span class="taxonomy-vtn-description">'. check_markup($term->description, $format, FALSE) .'</span>';
+      }
+
+      if (!$show_count_nodes || $count_nodes || $show_unused_terms) {
+        if ($show_edit_link) {
+          $edit_link = ' [' . l(t('edit'), 'admin/content/taxonomy/edit/term/' . $term->tid,
+                         array('query' => array('destination' => 'taxonomy_vtn/voc/' . $own_vid)))
+                      . ']';
+        }
+
+        $arr[$term->name][] = l($term->name, 'taxonomy_vtn/term/'. $term->tid)
+                              . $count_nodes . $edit_link . $term_desc;
+        ++$tcount;
+        if ($tcount >= $show_max_count) {
+          // got the max specified by the user
+          break;
+        }
+      }
+    }
+  }
+
+  // change locale to sort
+  if (variable_get('taxonomy_vtn_use_setlocale', 1) == 1
+        && variable_get('taxonomy_vtn_server_support_setlocale', 0) == 1) {
+    $my_locale = variable_get('taxonomy_vtn_locale_code', 'en_US.UTF8');
+    setlocale(LC_ALL, $my_locale);
+    ksort($arr, SORT_LOCALE_STRING);
+    // set locale back to default
+    setlocale(LC_ALL, NULL); // without this count($arr) not work properly
+  }
+  else {
+    ksort($arr); //--- this does not support locales
+  }
+
+  if (count($arr) > 0) {
+    if ($show_voc_desc) {
+      $format = variable_get('taxonomy_vtn_vocabularies_format', TAXONOMY_VTN_DEFAULT_FORMAT);
+      if ($format == TAXONOMY_VTN_DEFAULT_FORMAT) {
+        $format = FILTER_FORMAT_DEFAULT;
+      }
+      $voc_desc = '<div class="taxonomy-vtn-description">'. check_markup($voc->description, $format, FALSE) .'</div>';
+    }
+    if ($show_count_terms) {
+      $count_terms = '<div class="taxonomy-vtn-count">'.
+                       t('Found !count terms.', array('!count' => $tcount)) .'</div>';
+    }
+
+    $block['content'] = $voc_desc . theme('item_list', $arr) . $count_terms;
+    $block['subject'] = t('Terms of !name', array('!name' => $voc->name));
+    $block['weight'] = -50;
+
+    return $block;
+  }
+
+  // otherwise return NULL
+}
+
+/**
+ * Implementation of hook_block().
+ */
+function taxonomy_vtn_terms_blocks_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+  case 'list':
+    // if there are no vocabularies, then we won't get any block
+    $all_vocs = taxonomy_get_vocabularies();
+    foreach($all_vocs as $key => $vocabulary) {
+      $blocks[$key]['info'] = t('Taxonomy Terms: !name', array('!name' => $vocabulary->name));
+      $blocks[$key]['cache'] = BLOCK_NO_CACHE;
+    }
+    if(!$blocks) {
+      drupal_set_message("There are no vocabularies to display terms with the Taxonomy VTN Terms Blocks.", "warning");
+    }
+    return $blocks;
+
+  case 'configure':
+    return _taxonomy_vtn_terms_blocks_configure($delta);
+
+  case 'save':
+    _taxonomy_vtn_terms_blocks_save($delta, $edit);
+    break;
+
+  case 'view':
+    return _taxonomy_vtn_terms_blocks_view($delta);
+
+  }
+}
+

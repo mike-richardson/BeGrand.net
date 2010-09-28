@@ -1,0 +1,181 @@
+<?php
+// $Id: taxonomy_vtn_blocks.module,v 1.1.2.8 2009/07/26 21:39:07 alexiswilke Exp $
+
+
+/**
+ * @file
+ * main file for module providing a block
+ */
+
+/**
+ * Get a list of vocabularies to include/exclude.
+ * In case users do not put spaces, we remove them here.
+ *
+ * @param[in] $varname1  The name of the global variable
+ *
+ * @return NULL or an array of identifiers
+ */
+function _taxonomy_vtn_block_get_list($varname1) {
+  $result = NULL;
+
+  $r = explode(',', str_replace(' ', '', variable_get($varname1, '')));
+  foreach($r as $id) {
+    if (is_numeric($id)) {
+      $result[$id] = $id;
+    }
+  }
+
+  return $result;
+}
+
+
+/**
+ * Implementation of hook_block().
+ */
+function taxonomy_vtn_blocks_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      $blocks[0]['info'] = t('Taxonomy VTN');
+      $blocks[0]['cache'] = BLOCK_NO_CACHE; // the node counters require skipping the cache...
+      return $blocks;
+
+    case 'configure':
+      // block settings
+      $form['taxonomy_vtn_blocks_show_empty_vocs'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("Show empty vocabularies"),
+        '#default_value' => variable_get('taxonomy_vtn_blocks_show_empty_vocs', 0),
+      );
+      $form['taxonomy_vtn_blocks_show_voc_desc'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("Show vocabulary description"),
+        '#default_value' => variable_get('taxonomy_vtn_blocks_show_voc_desc', 0),
+      );
+
+      $form['taxonomy_vtn_blocks_show_count_terms'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("Show count of terms"),
+        '#description' => t('This may slow your site'),
+        '#default_value' => variable_get('taxonomy_vtn_blocks_show_count_terms', 0),
+      );
+      $form['taxonomy_vtn_blocks_show_count_nodes'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("Show count of nodes"),
+        '#description' => t('This may slow your site'),
+        '#default_value' => variable_get('taxonomy_vtn_blocks_show_count_nodes', 0),
+      );
+      $form['taxonomy_vtn_block_omit'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Exclude vocabularies by identifiers'),
+        '#description' => t('Example: 1, 3, 11, 5'),
+        '#default_value' =>  variable_get('taxonomy_vtn_block_omit', '')
+      );
+      $form['taxonomy_vtn_block_include'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Include vocabularies by identifiers'),
+        '#description' => t('Example: 1, 3, 11, 5'),
+        '#default_value' =>  variable_get('taxonomy_vtn_block_include', '')
+      );
+
+      return $form;
+
+    case 'save':
+      variable_set('taxonomy_vtn_blocks_show_empty_vocs', $edit['taxonomy_vtn_blocks_show_empty_vocs']);
+      variable_set('taxonomy_vtn_blocks_show_voc_desc', $edit['taxonomy_vtn_blocks_show_voc_desc']);
+      variable_set('taxonomy_vtn_blocks_show_count_terms', $edit['taxonomy_vtn_blocks_show_count_terms']);
+      variable_set('taxonomy_vtn_blocks_show_count_nodes', $edit['taxonomy_vtn_blocks_show_count_nodes']);
+      variable_set('taxonomy_vtn_block_omit', $edit['taxonomy_vtn_block_omit']);
+      variable_set('taxonomy_vtn_block_include', $edit['taxonomy_vtn_block_include']);
+      break;
+
+    case 'view':
+      // only show block if user has perm to view this
+      if (!user_access('access taxonomy_vtn')) {
+        return array();
+      }
+
+      $arr = array();
+
+      $show_count_terms = variable_get('taxonomy_vtn_blocks_show_count_terms', 0);
+      $show_empty_vocs = variable_get('taxonomy_vtn_blocks_show_empty_vocs', 0);
+      $show_voc_desc = variable_get('taxonomy_vtn_blocks_show_voc_desc', 0);
+      $show_count_nodes = variable_get('taxonomy_vtn_blocks_show_count_nodes', 0);
+
+      $all_vocs = taxonomy_get_vocabularies();
+
+      $include_vocs = _taxonomy_vtn_block_get_list('taxonomy_vtn_block_include');
+      if ($include_vocs) {
+        foreach($include_vocs as $include_vocs_id) {
+          if (isset($all_vocs[$include_vocs_id])) {
+            $vocs[$include_vocs_id] = $all_vocs[$include_vocs_id];
+          }
+        }
+      }
+      else {
+        $vocs = $all_vocs;
+      }
+
+      $omit_vocs = _taxonomy_vtn_block_get_list('taxonomy_vtn_block_omit');
+      if ($omit_vocs) {
+        foreach ($omit_vocs as $omit_vocs_id) {
+          unset($vocs[$omit_vocs_id]);
+        }
+      }
+
+      foreach ($vocs as $voc) {
+        $terms = taxonomy_get_tree($voc->vid);
+
+        if ($show_count_nodes) {
+          $count_n = 0;
+          foreach ($terms as $term) {
+            $count_n = $count_n + taxonomy_term_count_nodes($term->tid);
+          }
+          $count_nodes = ' ('. $count_n .')';
+        }
+
+        $tcount = count($terms);
+
+        if ($show_count_terms) {
+          $count_terms = ' ('. $tcount .')';
+        }
+
+        if ($show_voc_desc) {
+          $voc_desc = '<br/><span class="description">'. $voc->description .'</span>';
+        }
+
+        if ($tcount || $show_empty_vocs) {
+          if (variable_get('taxonomy_vtn_terms_parent_child_links' . $voc->vid, 0)) {
+            $href = 'taxonomy_vtn/voc/'. $voc->vid . '/0/1';
+          }
+          else {
+            $href = 'taxonomy_vtn/voc/'. $voc->vid;
+          }
+          $arr[$voc->name][] = l($voc->name . $count_terms . $count_nodes . $voc_desc, $href, array('html' => TRUE ));
+        }
+      }
+
+      $my_locale = variable_get('taxonomy_vtn_locale_code', 'en_US.UTF8');
+
+      // change locale to sort
+      if (variable_get('taxonomy_vtn_use_setlocale', 1) == 1 && variable_get('taxonomy_vtn_server_support_setlocale', 0) == 1) {
+        setlocale(LC_ALL, $my_locale);
+        ksort($arr, SORT_LOCALE_STRING);
+        // set locale back to default
+        setlocale(LC_ALL, NULL); // without this count($arr) not work properly
+      }
+      else {
+        ksort($arr); //--- this does not support locales
+      }
+
+      if (!empty($arr)) {
+        $block['content'] = theme('item_list', $arr);
+        $block['subject'] = t('Vocabularies');
+        $block['weight'] = -50;
+        return $block;
+      }
+      // no block
+      break;
+
+    }
+}
+

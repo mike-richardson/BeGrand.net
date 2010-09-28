@@ -1,0 +1,385 @@
+# $Id: pl.po,v 1.1.2.1 2008/06/23 19:10:16 tomaszx Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  taxonomy_vtn.pages.inc,v 1.1.2.2 2008/04/22 23:49:05 tomaszx
+#  taxonomy_vtn.module,v 1.1.2.3 2008/05/01 10:01:12 tomaszx
+#  taxonomy_vtn_blocks.module,v 1.1.2.2 2008/05/01 10:01:12 tomaszx
+#  taxonomy_vtn.info,v 1.1.2.1 2008/04/22 23:49:05 tomaszx
+#  taxonomy_vtn_blocks.info,v 1.1.2.1 2008/04/22 23:49:05 tomaszx
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Taxonomy VTN\n"
+"POT-Creation-Date: 2008-05-10 23:28+0200\n"
+"PO-Revision-Date: 2008-05-13 09:35+0100\n"
+"Last-Translator: Tomasz Rosiński <tomasz-rosinski@o2.pl>\n"
+"Language-Team: Cleo <etz334@o2.pl>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+
+#: taxonomy_vtn.pages.inc:92;328
+msgid "Show / Hide descriptions"
+msgstr "Pokaż / Ukryj opisy"
+
+#: taxonomy_vtn.pages.inc:108
+msgid "No data to display. Probably you have set option to not show empty vocabularies."
+msgstr "Brak danych do wyświetlenia. Prawdopodobnie masz ustawioną opcję nie pokazuj pustych słowników."
+
+#: taxonomy_vtn.pages.inc:120
+msgid "No data to display. Probably you not have any vocabularies"
+msgstr "Brak danych do wyświetlenia. Prawdopodobnie nie masz żadnych słowników."
+
+#: taxonomy_vtn.pages.inc:143
+msgid "Terms in"
+msgstr "Kategorie w"
+
+#: taxonomy_vtn.pages.inc:145
+msgid "@vocabulary"
+msgstr "@vocabulary"
+
+#: taxonomy_vtn.pages.inc:149
+msgid "Bad vocabulary id"
+msgstr "Niewłaściwe id słownika"
+
+#: taxonomy_vtn.pages.inc:151
+msgid "No data to display. Probably you not have a vocabulary with vid = !voc_id"
+msgstr "Brak danych do wyświetlenia. Prawdopodobnie nie masz słownika z vid = !voc_id"
+
+#: taxonomy_vtn.pages.inc:155;320;350;372;415
+msgid "vocabularies"
+msgstr "słowników"
+
+#: taxonomy_vtn.pages.inc:157;322;352;374;417;518;541
+msgid "master index"
+msgstr "indeksu nadrzędnego"
+
+#: taxonomy_vtn.pages.inc:159;324;354;376;419;520;543
+msgid "Back to"
+msgstr "Powrót do"
+
+#: taxonomy_vtn.pages.inc:166;426
+msgid "Please select a vocabulary first"
+msgstr "Wybierz najpierw słownik"
+
+#: taxonomy_vtn.pages.inc:278
+msgid "Synonyms"
+msgstr "Synonimy"
+
+#: taxonomy_vtn.pages.inc:346
+msgid "No data to display. Probably you have set option to not show empty terms."
+msgstr "Brak danych do wyświetlenia. Prawdopodobnie masz ustawioną opcję nie pokazuj pustych kategorii."
+
+#: taxonomy_vtn.pages.inc:368
+msgid "No data to display. Probably this vocabulary is empty."
+msgstr "Brak danych do wyświetlenia. Prawdopodobnie ten słownik jest pusty."
+
+#: taxonomy_vtn.pages.inc:403
+msgid "Nodes of term"
+msgstr "Segmenty kategorii"
+
+#: taxonomy_vtn.pages.inc:405
+msgid "@term_name"
+msgstr "@term_name"
+
+#: taxonomy_vtn.pages.inc:408
+msgid "Bad term id"
+msgstr "Niewłaściwe id kategorii"
+
+#: taxonomy_vtn.pages.inc:410
+msgid "No data to display. Probably you not have a term with tid = !term_id"
+msgstr "Brak danych do wyświetlenia. Prawdopodobnie nie masz kategorii z tid = !term_id"
+
+#: taxonomy_vtn.pages.inc:516;539
+msgid "terms"
+msgstr "kategorii"
+
+#: taxonomy_vtn.pages.inc:535
+msgid "No data to display. Probably this term is empty."
+msgstr "Brak danych do wyświetlenia. Prawdopodobnie ta kategoria jest pusta."
+
+#: taxonomy_vtn.pages.inc:459
+msgid "1 comment"
+msgid_plural "@count comments"
+msgstr[0] "1 odpowiedź"
+msgstr[1] "@count odpowiedzi"
+msgstr[2] "@count odpowiedzi"
+
+#: taxonomy_vtn.module:12
+msgid "Screenshots"
+msgstr "Zrzuty ekranu"
+
+#: taxonomy_vtn.module:16
+msgid "Screenshot of vocabulary."
+msgstr "Zrzut ekranu słownika."
+
+#: taxonomy_vtn.module:16
+msgid "Sample vocabulary index"
+msgstr "Przykładowy index słownika"
+
+#: taxonomy_vtn.module:21
+msgid "Screenshot of terms."
+msgstr "Zrzut ekranu kategorii."
+
+#: taxonomy_vtn.module:21
+msgid "Sample terms index"
+msgstr "Przykładowy index kategorii"
+
+#: taxonomy_vtn.module:26
+msgid "Screenshot of nodes."
+msgstr "Zrzut ekranu segmentu."
+
+#: taxonomy_vtn.module:26
+msgid "Sample nodes index"
+msgstr "Przykładowy index segmentu"
+
+#: taxonomy_vtn.module:31
+msgid "Features"
+msgstr "Cechy"
+
+#: taxonomy_vtn.module:32
+msgid "I'm open for sugestions."
+msgstr "Jestem otwarty na sugestie."
+
+#: taxonomy_vtn.module:36
+msgid "Define your prefered setting to use this module."
+msgstr "Preferencje użytkownika"
+
+#: taxonomy_vtn.module:66
+msgid "Taxonomy VTN settings"
+msgstr "Ustawienia Taxonomy VTN"
+
+#: taxonomy_vtn.module:67
+msgid "Customize Taxonomy VTN settings"
+msgstr "Własne ustawienia Taxonomy VTN"
+
+#: taxonomy_vtn.module:74;203
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:138
+msgid "Vocabularies"
+msgstr "Słowniki"
+
+#: taxonomy_vtn.module:81;261
+msgid "Terms"
+msgstr "Kategorie"
+
+#: taxonomy_vtn.module:89
+msgid "Term Nodes"
+msgstr "Segmenty kategorii"
+
+#: taxonomy_vtn.module:140
+msgid "Global"
+msgstr "Globalny"
+
+#: taxonomy_vtn.module:146
+msgid "When using caching entire index pages are being cached and changes on terms, nodes or vocabularies won't have any effect until the cache is rebuilt"
+msgstr "Kiedy używasz buforowania cała indeksacja stron jest gromadzona i kiedy zmieniasz kategorie, segmenty lub słowniki nie ma żadnego efektu dopóki pamięć nie zostanie przebudowana"
+
+#: taxonomy_vtn.module:146
+msgid "Note"
+msgstr "Uwaga"
+
+#: taxonomy_vtn.module:146
+msgid "Now this module support operations"
+msgstr "Teraz moduł wspiera operacje"
+
+#: taxonomy_vtn.module:146
+msgid "insert, update, delete"
+msgstr "wstawiania, aktualizacji, usuwania"
+
+#: taxonomy_vtn.module:146
+msgid "for nodes, terms and vocabularies and rebuild automaticaly own cache. In most case this is safe choice. However you can !link"
+msgstr "dla segmentów, kategorii i słowników i automatycznie przebudowywuje własną pamięć podręczną. W większości przypadków to bezpieczny wybór. Możesz również !link"
+
+#: taxonomy_vtn.module:146
+msgid "clear cache now"
+msgstr "teraz wyczyścić pamięć podręczną"
+
+#: taxonomy_vtn.module:150
+msgid "Caching"
+msgstr "Buforowanie"
+
+#: taxonomy_vtn.module:157
+msgid "!setlocale is supported. <br />This mean that sort index alphabetical with specific letters like !letters can be really sorted with your language. Enjoy."
+msgstr "!setlocale jest wspierany. <br /> Oznacza to, że możliwe jest alfabetyczne sortowanie indeksów w twoim języku ze specyficznymi literami takimi jak: !letters. Korzystaj!"
+
+#: taxonomy_vtn.module:160
+msgid "Your server not support !setlocale. <br />This mean that sort index alphabetical with specific letters like !letters can't be really sorted with your language."
+msgstr "Twój serwer nie wspiera !setlocale. <br />Oznacza to, że nie jest możliwe alfabetyczne sortowanie indeksów w twoim języku ze specyficznymi literami takimi jak: !letters."
+
+#: taxonomy_vtn.module:165
+msgid "Use setlocale"
+msgstr "Użycie setlocale"
+
+#: taxonomy_vtn.module:166
+msgid "If you have some trouble, turn off this option."
+msgstr "W przypadku problemów, wyłącz tą opcję."
+
+#: taxonomy_vtn.module:173
+msgid "List of supported locale by server"
+msgstr "Lista wspieranych lokalnych języków przez serwer"
+
+#: taxonomy_vtn.module:174
+msgid "Here select your lang code to proper sort."
+msgstr "Tutaj wybierz własny kod językowy, aby właściwie sortować."
+
+#: taxonomy_vtn.module:187
+msgid "User friendly titles"
+msgstr "Tytuły przyjazne użytkownikowi"
+
+#: taxonomy_vtn.module:193
+msgid "Overwrite links"
+msgstr "Nadpisane odnośniki"
+
+#: taxonomy_vtn.module:204
+msgid "Set how show the vocabularies index"
+msgstr "Ustawia jak pokazywać indeks słowników"
+
+#: taxonomy_vtn.module:210;273
+msgid "Show descriptions"
+msgstr "Pokaż opisy"
+
+#: taxonomy_vtn.module:215
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:46
+msgid "Show count of terms"
+msgstr "Pokaż liczbę kategorii"
+
+#: taxonomy_vtn.module:220;283
+msgid "Show empty"
+msgstr "Pokaż puste"
+
+#: taxonomy_vtn.module:225;238;293;306;356
+msgid "One"
+msgstr "Jedna"
+
+#: taxonomy_vtn.module:226;239;294;307;357
+msgid "Two"
+msgstr "Dwie"
+
+#: taxonomy_vtn.module:227;240;295;308
+msgid "Three"
+msgstr "Trzy"
+
+#: taxonomy_vtn.module:231;299
+msgid "Letters to group"
+msgstr "Litery do grupowania"
+
+#: taxonomy_vtn.module:232;300
+msgid "This settings make index grouped like, Example:"
+msgstr "Te ustawienia grupują index, np:"
+
+#: taxonomy_vtn.module:232;300
+msgid "or"
+msgstr "lub"
+
+#: taxonomy_vtn.module:244;312;361
+msgid "Number of columns"
+msgstr "Liczba kolumn"
+
+#: taxonomy_vtn.module:251
+msgid "Direct go to terms if is the only one vocabulary"
+msgstr "Przekieruj do kategorii jeśli jest tylko jeden słownik"
+
+#: taxonomy_vtn.module:262
+msgid "Set how show the terms index"
+msgstr "Ustawia jak pokazywać indeks kategorii"
+
+#: taxonomy_vtn.module:268;341
+msgid "Show"
+msgstr "Pokaż"
+
+#: taxonomy_vtn.module:268
+msgid "back to vocabularies"
+msgstr "powrót do słowników"
+
+#: taxonomy_vtn.module:278
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:52
+msgid "Show count of nodes"
+msgstr "Pokaż liczbę segmentów"
+
+#: taxonomy_vtn.module:288
+msgid "Show synonyms"
+msgstr "Pokaż synonimy"
+
+#: taxonomy_vtn.module:318
+msgid "List of nodes"
+msgstr "Lista segmentów"
+
+#: taxonomy_vtn.module:324
+msgid "Where we go on click a term"
+msgstr "Dokąd ma prowadzić użycia odnośnika kategorii"
+
+#: taxonomy_vtn.module:334
+msgid "Nodes"
+msgstr "Segmenty"
+
+#: taxonomy_vtn.module:335
+msgid "Set how show the nodes index"
+msgstr "Ustawia jak pokazywać indeks segmentów"
+
+#: taxonomy_vtn.module:341
+msgid "back to terms"
+msgstr "powrót do kategorii"
+
+#: taxonomy_vtn.module:346
+msgid "Show count of comments"
+msgstr "Pokaż liczbę odpowiedzi"
+
+#: taxonomy_vtn.module:351
+msgid "Show count for nodes with no comments"
+msgstr "Pokaż liczbę segmentów bez odpowiedzi"
+
+#: taxonomy_vtn.module:367
+msgid "Show index if number of columns are set to one column"
+msgstr "Pokaż index jeśli liczba kolumn jest ustawiona na jedną kolumnę"
+
+#: taxonomy_vtn.module:54
+msgid "administer taxonomy_vtn"
+msgstr "zarządzaj taxonomy_vtn"
+
+#: taxonomy_vtn.module:54
+msgid "access taxonomy_vtn"
+msgstr "dostęp do taxonomy_vtn"
+
+#: taxonomy_vtn.module:0
+msgid "taxonomy_vtn"
+msgstr "taxonomy_vtn"
+
+#: taxonomy_vtn.info:0;0
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:10
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.info:0
+msgid "Taxonomy VTN"
+msgstr "Taxonomy VTN"
+
+#: taxonomy_vtn.info:0
+msgid "Taxonomy VTN - vocabularies, terms and nodes"
+msgstr "Taxonomy VTN - słowniki, kategorie i segmenty"
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:35
+msgid "Show empty vocabularies"
+msgstr "Pokaż puste słowniki"
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:40
+msgid "Show vocabulary description"
+msgstr "Pokaż opis słownika"
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:47;53
+msgid "This may slow your site"
+msgstr "To może spowolnić Twoją stronę"
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:0
+msgid "taxonomy_vtn_blocks"
+msgstr "taxonomy_vtn_blocks"
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.info:0
+msgid "Taxonomy VTN Blocks"
+msgstr "Taxonomy VTN Blocks"
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.info:0
+msgid "Provides blocks for Taxonomy VTN."
+msgstr "Dostarcza bloki dla Taxonomy VTN"
+

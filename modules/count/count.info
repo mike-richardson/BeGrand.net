@@ -1,0 +1,13 @@
+; $Id: count.info,v 1.1 2009/09/18 19:36:30 bharat83 Exp $ 
+name = Count
+description = Counts total nodes of each Content Type
+core = 6.x
+
+
+
+; Information added by drupal.org packaging script on 2009-09-18
+version = "6.x-1.0"
+core = "6.x"
+project = "count"
+datestamp = "1253304043"
+

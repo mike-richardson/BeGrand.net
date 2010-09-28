@@ -1,0 +1,367 @@
+<?php
+// $Id: taxonomy_vtn.module,v 1.1.2.31 2009/07/26 21:39:07 alexiswilke Exp $
+
+/**
+ * @file
+ * main module file
+ *
+ */
+
+
+define('TAXONOMY_VTN_DEFAULT_FORMAT', -1); // -1 is not supposed to happen in the serial
+
+/**
+ * Function defining an array of formats to choose from.
+ * The format is used to format the text whenever Taxonomy VTN
+ * renders the data.
+ */
+function _taxonomy_vtn_get_formats() {
+  $formats = filter_formats();
+  $opts = array(TAXONOMY_VTN_DEFAULT_FORMAT => 'Use default format');
+  foreach ($formats as $f) {
+    $opts[$f->format] = $f->name;
+  }
+  return $opts;
+}
+
+
+/**
+ * Implementation of hook_help().
+ */
+function taxonomy_vtn_help($path, $arg) {
+  $path_taxonomy_vtn = base_path() . drupal_get_path('module', 'taxonomy_vtn');
+
+  switch ($path) {
+    case 'admin/help#taxonomy_vtn':
+      $output = '<p>&nbsp;</p><h3>1. '. t('Screenshots') .'</h3>'."\n";
+
+      $output .= '<p><hr /><br /></p>'."\n";
+
+      $output .= '<p><img src="'. $path_taxonomy_vtn .'/images/taxonomy_vtn_vocabulary.png" alt="'. t('Screenshot of vocabulary.') .'" style="float:right;"><strong>'. t('Sample vocabulary index') .'</strong></p>'."\n";
+      $output .= '<p style=" clear: both;"></p>'."\n";
+
+      $output .= '<p><hr /><br /></p>'."\n";
+
+      $output .= '<p><img src="'. $path_taxonomy_vtn .'/images/taxonomy_vtn_terms.png" alt="'. t('Screenshot of terms.') .'" style="float:right;"><strong>'. t('Sample terms index') .'</strong></p>'."\n";
+      $output .= '<p style=" clear: both;"></p>'."\n";
+
+      $output .= '<p><hr /><br /></p>'."\n";
+
+      $output .= '<p><img src="'. $path_taxonomy_vtn .'/images/taxonomy_vtn_nodes.png" alt="'. t('Screenshot of nodes.') .'" style="float:right;"><strong>'. t('Sample nodes index') .'</strong></p>'."\n";
+      $output .= '<p style=" clear: both;"></p>'."\n";
+
+      $output .= '<p><hr /><br /></p>'."\n";
+
+      $output .= '<h3> 2. '. t('Settings') .'</h3>'."\n";
+      $output .= '<p>'. t('As mentioned below, the Taxonomy VTN has its own !settings. Also, each !taxonomy has detailed settings on how to present the terms and nodes.',
+                           array(
+                             "!settings" => l(t('settings page'), 'admin/settings/taxonomy_vtn'),
+                             "!taxonomy" => l(t('Taxonomy'), 'admin/content/taxonomy'),
+                           )
+                         ) .'</p><p>Also, it is strongly suggested that you edit your terms and add a definition to each one of them to make your Taxonomy VTN really useful.</p><br />'."\n";
+
+      $output .= '<h3> 3. '. t('Features') .'</h3>'."\n";
+      $output .= '<p>'. t('I\'m open to sugestions.') .'</p><br />'."\n";
+      break;
+
+    case 'admin/settings/taxonomy_vtn':
+      $output .= '<p>'. t("Define the global settings of the Taxonomy VTN module.") .'</p>'
+        . '<p>'. t("Please, check your !taxonomies to refine your term & node settings.",
+                     array('!taxonomies' => l(t('Taxonomies'), 'admin/content/taxonomy'))) .'</p>';
+      break;
+
+  }
+  return $output;
+}
+
+/**
+ * Implementation of hook_init().
+ */
+function taxonomy_vtn_init() {
+  $path = drupal_get_path( 'module', 'taxonomy_vtn' );
+  drupal_add_css( $path .'/taxonomy_vtn.css', 'module', 'all', FALSE );
+  drupal_add_js( $path .'/taxonomy_vtn.js');
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function taxonomy_vtn_perm() {
+  return array('administer taxonomy_vtn', 'access taxonomy_vtn');
+}
+
+
+/**
+ * Implementation of hook_menu().
+ */
+function taxonomy_vtn_menu() {
+
+  $items = array();
+
+  $items['admin/settings/taxonomy_vtn'] = array(
+    'title' => 'Taxonomy VTN',
+    'description' => 'Customize Taxonomy VTN settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('taxonomy_vtn_settings'),
+    'access arguments' => array('administer taxonomy_vtn'),
+    'file' => 'taxonomy_vtn.admin.inc',
+  );
+
+  $items['taxonomy_vtn'] = array(
+    'title' => 'Site index',
+    'page callback' => 'taxonomy_vtn_show_vocabularies',
+    'page arguments' => array('all', NULL),
+    'access arguments' => array('access taxonomy_vtn'),
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/group/%'] = array(
+    'title' => 'Site index',
+    'page callback' => 'taxonomy_vtn_show_vocabularies',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/groups/%'] = array(
+    'title' => 'Site index',
+    'page callback' => 'taxonomy_vtn_show_vocabularies',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/alpha/%/%'] = array(
+    'title' => 'Terms by letter',
+    'page callback' => 'taxonomy_vtn_show_terms',
+    'page arguments' => array(2, 'ALPHA', 3),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/voc/%'] = array(
+    'title' => 'Terms',
+    'page callback' => 'taxonomy_vtn_show_terms',
+    'page arguments' => array(2),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/voc/%/%'] = array(
+    'title' => 'Terms',
+    'page callback' => 'taxonomy_vtn_show_terms',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/voc/%/%/%'] = array(
+    'title' => 'Terms',
+    'page callback' => 'taxonomy_vtn_show_terms',
+    'page arguments' => array(2, 3, 4),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/name/%'] = array(
+    'title' => 'Terms',
+    'page callback' => 'taxonomy_vtn_show_terms_by_name',
+    'page arguments' => array(2),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/name/%/%'] = array(
+    'title' => 'Terms',
+    'page callback' => 'taxonomy_vtn_show_nodes_by_name',
+    'page arguments' => array(2, 3),
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/term'] = array(
+    'title' => 'Term Nodes',
+    'page callback' => 'taxonomy_vtn_show_nodes',
+    'access arguments' => array('access taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.pages.inc',
+  );
+
+  $items['taxonomy_vtn/clear_cache'] = array(
+    'title' => 'Clear Taxonomy VTN Cache',
+    'page callback' => 'taxonomy_vtn_clear_cache',
+    'access arguments' => array('administer taxonomy_vtn'),
+    'type' => MENU_CALLBACK,
+    'file' => 'taxonomy_vtn.admin.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Get all locales supported on the server running Drupal.
+ */
+function list_system_locales() {
+  /*
+    ob_start();
+    system('locale -a');
+    $str = ob_end_clean();
+    return split("\\n", trim($str));
+  */
+  $locales = array();
+
+  exec('locale -a', $ar);
+  if (!empty($ar)) {
+    foreach ($ar as $l) {
+      $locales[$l] = $l;
+    }
+  }
+
+  return $locales;
+}
+
+
+function taxonomy_vtn_checklocales() {
+  /* check for locale  */
+
+  // default no support
+  variable_set('taxonomy_vtn_server_support_setlocale', 0);
+  /*
+    SORT_LOCALE_STRING - compare items as strings, based on the current locale.
+    Added in PHP 4.4.0 and 5.0.2. Before PHP 6, it uses the system locale, which can be changed using setlocale().
+    Since PHP 6, you must use the i18n_loc_set_default() function.
+
+    read more: http://pl.php.net/sort
+  */
+  // TODO: support for php6 in future
+  if ( (version_compare(phpversion(), '4.4.0', '>=') && version_compare(phpversion(), '5', '<')) or (version_compare(phpversion(), '5.0.2', '>=') && version_compare(phpversion(), '6', '<'))
+  ) {
+    // if php version is ok then check for setlocale
+    if ( setlocale(LC_ALL, 'en_US.UTF8') ) {
+      // set locale back to default
+      setlocale(LC_ALL, NULL); // without this count($arr) not work properly
+
+      variable_set('taxonomy_vtn_server_support_setlocale', 1);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function taxonomy_vtn_form_alter(&$form, $form_state, $form_id) {
+  if (!$form_state['submitted']) {
+    switch ($form_id) {
+    case 'taxonomy_form_vocabulary':
+      module_load_include('admin.inc', 'taxonomy_vtn');
+      _taxonomy_vtn_settings($form);
+      break;
+
+    case 'taxonomy_form_term':
+      module_load_include('admin.inc', 'taxonomy_vtn');
+      _taxonomy_vtn_terms_form($form);
+      break;
+
+    }
+  }
+}
+
+/**
+ * Implementation of the submit function for the hook_form_alter()
+ */
+function _taxonomy_vtn_form_vocabulary_submit($form, &$form_state) {
+  $vid = $form_state['values']['vid'];
+
+  variable_set("taxonomy_vtn_terms_long_description$vid", $form_state['values']["taxonomy_vtn_terms_long_description$vid"]);
+  variable_set("taxonomy_vtn_terms_ignored_chars$vid", $form_state['values']["taxonomy_vtn_terms_ignored_chars$vid"]);
+  variable_set("taxonomy_vtn_terms_numeric_sort$vid", $form_state['values']["taxonomy_vtn_terms_numeric_sort$vid"]);
+  variable_set("taxonomy_vtn_terms_parent_child_links$vid", $form_state['values']["taxonomy_vtn_terms_parent_child_links$vid"]);
+  variable_set("taxonomy_vtn_terms_group$vid", $form_state['values']["taxonomy_vtn_terms_group$vid"]);
+  variable_set("taxonomy_vtn_terms_show_parent_term$vid", $form_state['values']["taxonomy_vtn_terms_show_parent_term$vid"]);
+  variable_set("taxonomy_vtn_terms_show_nodes$vid", $form_state['values']["taxonomy_vtn_terms_show_nodes$vid"]);
+  variable_set("taxonomy_vtn_terms_show_back_to_voc$vid", $form_state['values']["taxonomy_vtn_terms_show_back_to_voc$vid"]);
+  variable_set("taxonomy_vtn_terms_show_hide_descriptions$vid", $form_state['values']["taxonomy_vtn_terms_show_hide_descriptions$vid"]);
+  variable_set("taxonomy_vtn_terms_show_term_desc$vid", $form_state['values']["taxonomy_vtn_terms_show_term_desc$vid"]);
+  variable_set("taxonomy_vtn_terms_show_count_nodes$vid", $form_state['values']["taxonomy_vtn_terms_show_count_nodes$vid"]);
+  variable_set("taxonomy_vtn_terms_show_empty_terms$vid", $form_state['values']["taxonomy_vtn_terms_show_empty_terms$vid"]);
+  variable_set("taxonomy_vtn_terms_show_terms_index$vid", $form_state['values']["taxonomy_vtn_terms_show_terms_index$vid"]);
+  variable_set("taxonomy_vtn_terms_show_synonyms$vid", $form_state['values']["taxonomy_vtn_terms_show_synonyms$vid"]);
+  variable_set("taxonomy_vtn_terms_show_related$vid", $form_state['values']["taxonomy_vtn_terms_show_related$vid"]);
+  variable_set("taxonomy_vtn_terms_show_quick_index$vid", $form_state['values']["taxonomy_vtn_terms_show_quick_index$vid"]);
+  variable_set("taxonomy_vtn_terms_break_quick_index$vid", $form_state['values']["taxonomy_vtn_terms_break_quick_index$vid"]);
+  variable_set("taxonomy_vtn_terms_show_statistics$vid", $form_state['values']["taxonomy_vtn_terms_show_statistics$vid"]);
+  variable_set("taxonomy_vtn_terms_count_group_terms$vid", $form_state['values']["taxonomy_vtn_terms_count_group_terms$vid"]);
+  variable_set("taxonomy_vtn_terms_count_column_terms$vid", $form_state['values']["taxonomy_vtn_terms_count_column_terms$vid"]);
+  variable_set("taxonomy_vtn_terms_goto$vid", $form_state['values']["taxonomy_vtn_terms_goto$vid"]);
+  variable_set("taxonomy_vtn_terms_omit$vid", $form_state['values']["taxonomy_vtn_terms_omit$vid"]);
+  variable_set("taxonomy_vtn_terms_include$vid", $form_state['values']["taxonomy_vtn_terms_include$vid"]);
+  variable_set("taxonomy_vtn_terms_format$vid", $form_state['values']["taxonomy_vtn_terms_format$vid"]);
+  variable_set("taxonomy_vtn_nodes_show_back_to_terms$vid", $form_state['values']["taxonomy_vtn_nodes_show_back_to_terms$vid"]);
+  variable_set("taxonomy_vtn_nodes_show_count_comments$vid", $form_state['values']["taxonomy_vtn_nodes_show_count_comments$vid"]);
+  variable_set("taxonomy_vtn_nodes_show_empty_count_comments$vid", $form_state['values']["taxonomy_vtn_nodes_show_empty_count_comments$vid"]);
+  variable_set("taxonomy_vtn_nodes_count_column_nodes$vid", $form_state['values']["taxonomy_vtn_nodes_count_column_nodes$vid"]);
+  variable_set("taxonomy_vtn_nodes_show_nodes_index$vid", $form_state['values']["taxonomy_vtn_nodes_show_nodes_index$vid"]);
+  variable_set("taxonomy_vtn_nodes_use_pager$vid", $form_state['values']["taxonomy_vtn_nodes_use_pager$vid"]);
+  variable_set("taxonomy_vtn_nodes_links_per_page$vid", $form_state['values']["taxonomy_vtn_nodes_links_per_page$vid"]);
+
+  // clear all taxonomy_vtn_* cache because some changes were made to the taxonomy settings
+  cache_clear_all('taxonomy_vtn_', 'cache', TRUE);
+}
+
+/**
+ * Implementation of the submit function for the hook_form_alter()
+ */
+function _taxonomy_vtn_form_term_submit($form, &$form_state) {
+  $tid = $form_state['values']['tid'];
+
+  variable_set("taxonomy_vtn_term_long_description$tid", $form_state['values']["taxonomy_vtn_term_long_description$tid"]);
+
+  // clear all taxonomy_vtn_* cache because some changes were made to the taxonomy settings
+  cache_clear_all('taxonomy_vtn_', 'cache', TRUE);
+}
+
+/**
+ * Implementation of hook_taxonomy($op, $type, $array = NULL)
+ */
+function taxonomy_vtn_taxonomy($op, $type, $array) {
+  // clear all taxonomy_vtn_* cache because some changes were made to the taxonomy
+  cache_clear_all('taxonomy_vtn_', 'cache', TRUE);
+}
+
+/**
+ * Implementation of hook_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL)
+ */
+function taxonomy_vtn_nodeapi(&$node, $op) {
+  switch ($op) {
+  case 'insert':
+  case 'update':
+  case 'delete':
+    // clear all taxonomy_vtn_* cache because some changes are made
+    // example: we changed the category for current node
+    cache_clear_all('taxonomy_vtn_', 'cache', TRUE);
+    break;
+
+  }
+}
+
+/**
+ * Implementation of hook_link_alter(&$links, $node)
+ */
+function taxonomy_vtn_link_alter(&$links, $node) {
+  if (variable_get('taxonomy_vtn_overwrite_links', 1) == 1) {
+    foreach ($links as $module => $link) {
+      if (strstr($module, 'taxonomy_term')) {
+        $links[$module]['href'] = str_replace('taxonomy/term', 'taxonomy_vtn/term', $link['href']);
+      }
+    }
+  }
+}

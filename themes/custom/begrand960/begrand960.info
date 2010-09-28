@@ -1,0 +1,76 @@
+name = begrand960
+description = 960.gs subtheme
+core = 6.x
+base theme = ninesixty
+stylesheets[all][] = begrand960.css
+stylesheets[all][] = roundedcorners.css
+stylesheets[all][] = jquery-ui.css
+stylesheets[all][] = forms.css
+stylesheets[all][] = tipTip.css
+stylesheets[all][] = css3.css
+stylesheets[all][] = homepage_slideshow.css
+
+; Set the conditional stylesheets that are processed by IE.
+conditional-stylesheets[if IE][all][] = ie.css
+
+
+
+
+; Define custom regions for theme
+
+ 
+regions[left] = Left sidebar
+regions[right] = Right sidebar
+regions[content] = Content
+regions[header] = Header
+regions[footer] = Footer
+regions[top_search] = Top search
+regions[content_top] = Content top
+regions[content_bottom] = Content bottom
+
+
+regions[home_survey] = home survey block
+
+regions[home_feature] = home feature block
+regions[row1_block2] = home page row 1 block 2
+regions[row1_block3] = home page row 1 block 3
+
+
+
+regions[home_banner] = home page ad banner
+
+regions[row2_block1] = home page row 2 block 1
+regions[row2_block2] = home page row 2 block 2
+regions[row2_block3] = home page row 2 block 3
+
+regions[row3_block1] = home page row 3 block 1
+regions[row3_block2] = home page row 3 block 2
+regions[row3_block3] = home page row 3 block 3
+regions[row3_block4] = home page row 3 block 4
+
+regions[loggedin_status] =  logged in status
+
+
+regions[events_intro] = events page introduction
+regions[events_find] = events proximity search
+regions[featured_events] = events - featured events
+regions[events_map] = events - map of all events
+regions[event_comments] = events - comments on past events
+regions[past_events] = events - past events listings
+
+
+regions[footer_block_1] = Footer block 1
+regions[footer_block_2] = Footer block 2
+regions[footer_block_3] = Footer block 3
+regions[footer_block_4] = Footer block 4
+
+
+
+scripts[] = jquery.clearforms.js
+scripts[] = jquery.tipTip.updated.js
+scripts[] = jScrollPane.js
+scripts[] = jquery.lazyload.mini.js
+scripts[] = jquery.textchange.min.js
+scripts[] = jquery.cycle.min.js
+scripts[] = corner.js
+scripts[] = scripts.js

@@ -1,0 +1,12 @@
+; $Id: ds.info,v 1.1 2009/10/18 15:25:22 swentel Exp $
+name = "Display suite"
+description = "Core functions for the Display Suite module."
+core = "6.x"
+package = "Display suite"
+
+; Information added by drupal.org packaging script on 2010-02-04
+version = "6.x-1.0"
+core = "6.x"
+project = "ds"
+datestamp = "1265317811"
+

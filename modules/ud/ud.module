@@ -1,0 +1,233 @@
+<?php
+// $Id: ud.module,v 1.1.2.15 2010/02/26 21:38:59 swentel Exp $
+
+/**
+ * @file
+ * User displays module.
+ */
+
+/**
+ * Implementation of hook_ds_api().
+ */
+function ud_ds_api() {
+  return array(
+    'title' => 'User displays',
+    'module' => 'ud',
+    'object' => 'user',
+    'views_base' => 'users',
+    'types' => 'ud_get_types',
+    'help' => array(0 => t('
+      <p>User displays comes default with 2 build modes: the full and a block. The module also enables a block which shows the profile of the current logged in user. If you have User reference enabled, additional formatters will be available to render that user field.</p>
+      <p>This module exposes an object called <strong>ds_profile</strong> - make sure you don\'t have another object (say a content type) with the same name. If you happen to use a module which makes a node from a user profile, you can probably disable User displays completely.</p>
+    '))
+  );
+}
+
+/**
+ * Render the comment object through the DS views plugin.
+ *
+ * @param array $vars The variables to manipulate.
+ * @param string $build_mode The build mode to use on this object.
+ */
+function ds_views_row_users(&$vars, $build_mode) {
+  $uid = $vars['row']->uid;
+  if (!is_numeric($uid)) {
+    return;
+  }
+
+  $account = user_load($uid);
+  if (empty($account)) {
+    return;
+  }
+
+  $account->build_mode = $build_mode;
+  user_build_content($account);
+  $vars['object'] = theme('user_profile', $account);
+}
+
+/**
+ * Implementation of hook_profile_alter().
+ */
+function ud_profile_alter(&$account) {
+
+  $account->type = 'ds_profile';
+  ds_build_fields_and_regions($account, 'ud');
+
+  // Break all the rendering if needed.
+  if (!$account->render_by_ds) {
+    return;
+  }
+
+  $content = ds_render_content($account, 'nd', array());
+  $vars['user_profile'] = $content;
+}
+
+/**
+ * Return user types.
+ */
+function ud_get_types() {
+  $types = array();
+  $profile = new stdClass();
+  $profile->name = 'User';
+  $profile->type = 'ds_profile';
+  $types['profile'] = $profile;
+  return $types;
+}
+
+/**
+ * Implementation of hook_ds_fields().
+ */
+function ud_ds_fields($type_name, $build_mode, $extra) {
+  $fields = array(
+    'name' => array(
+      'title' => 'Username',
+      'type' => DS_FIELD_TYPE_THEME,
+      'status' => DS_FIELD_STATUS_STATIC,
+    ),
+    'mail' => array(
+      'title' => 'E-mail',
+      'type' => DS_FIELD_TYPE_THEME,
+      'status' => DS_FIELD_STATUS_STATIC,
+    ),
+    'picture' => array(
+      'title' => 'Picture',
+      'type' => DS_FIELD_TYPE_THEME,
+      'status' => DS_FIELD_STATUS_STATIC,
+    ),
+    'signature' => array(
+      'title' => 'Signature',
+      'type' => DS_FIELD_TYPE_THEME,
+      'status' => DS_FIELD_STATUS_STATIC,
+    ),
+    'created' => array(
+      'title' => 'Created',
+      'type' => DS_FIELD_TYPE_THEME,
+      'status' => DS_FIELD_STATUS_STATIC,
+    ),
+  );
+
+  return array('ud' => $fields);
+}
+
+/**
+ * Implementation of hook_content_build_modes().
+ */
+function ud_content_build_modes() {
+  $build_modes = array(
+    'ud' => array(
+      'title' => t('User displays'),
+      'build modes' => array(
+        'full' => array(
+          'title' => t('Full profile'),
+          'module' => 'ud',
+          'weight' => -1,
+        ),
+        'block' => array(
+          'title' => t('Block'),
+          'module' => 'ud',
+          'weight' => 1,
+        ),
+      )
+    ),
+  );
+
+  return $build_modes;
+}
+
+/**
+ * Implementation of hook_block().
+ */
+function ud_block($op = 'list', $delta = 0, $edit = array()) {
+  switch ($op) {
+    case 'list':
+      return array('ud-user-block' => array('info' => t('User displays profile block')));
+      break;
+    case 'view':
+      return ud_user_profile_block();
+      break;
+  }
+}
+
+/**
+ * Block callback: show the user profile.
+ */
+function ud_user_profile_block() {
+
+  global $user;
+  if ($user->uid == 0) {
+    return;
+  }
+
+  $account = user_load($user->uid);
+  if (empty($account)) {
+    return;
+  }
+
+  // Build the content.
+  $account->build_mode = 'block';
+  user_build_content($account);
+  $content = theme('user_profile', $account);
+
+  $block = array();
+  $block['subject'] = t('User profile');
+  $block['content'] = $content;
+  return $block;
+}
+
+/**
+ * Implementation of hook_field_formatter_info().
+ *
+ * Adds extra build modes to formatters of user reference.
+ */
+function ud_field_formatter_info() {
+  $formatters = array();
+
+  if (module_exists('userreference')) {
+    $build_modes = ds_get_build_modes('ud');
+    foreach ($build_modes as $key => $build_mode) {
+      $formatters['user_'. $key] = array(
+        'label' => t('Build mode: @build_mode', array('@build_mode' => $build_mode['title'])),
+        'field types' => array('userreference'),
+        'multiple values' => CONTENT_HANDLE_CORE,
+      );
+    }
+  }
+
+  return $formatters;
+}
+
+/**
+ * Implementation of hook_theme().
+ *
+ * Adds theming functions for user reference and node displays.
+ */
+function ud_theme() {
+  $theme_functions = array();
+
+  if (module_exists('userreference')) {
+    $build_modes = ds_get_build_modes('ud');
+    foreach ($build_modes as $key => $build_mode) {
+      $theme_functions['ud_formatter_user_'. $key] = array(
+        'arguments' => array('element'),
+        'function' => 'theme_ud_user_formatter',
+      );
+    }
+  }
+
+  return $theme_functions;
+}
+
+/**
+ * User reference theme formatter to support User Displays.
+ * Based on theme_userreference_formatter_default.
+ */
+function theme_ud_user_formatter($element) {
+  $output = '';
+
+  if (isset($element['#item']['uid']) && $account = user_load(array('uid' => $element['#item']['uid']))) {
+    $build_mode = str_replace('user_', '', $element['#formatter']);
+    $account->build_mode = $build_mode;
+    $output = theme('username', $account);
+  }
+  return $output;
+}

@@ -1,0 +1,13 @@
+$Id: INSTALL.txt,v 1.1 2010/05/12 00:40:32 pglatz Exp $
+
+Installation
+------------
+unarchive the tarball
+copy it to your sites/all/modules path
+enable the module at /admin/build/modules
+
+Uninstall
+---------
+An uninstall script is provided, which will remove the configuration variable 
+(nodedump_last_nid) used by the module. There are no database tables affected by 
+this module.

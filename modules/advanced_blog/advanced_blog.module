@@ -1,0 +1,809 @@
+<?php
+// $Id: advanced_blog.module,v 1.26 2010/06/05 11:45:59 xeniox Exp $
+
+/**
+ * The Advanced Blog module provides advanced features for the core blog module.
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function advanced_blog_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#advanced_blog':
+      $output = '<p>'. t('The Advanced Blog module provides advanced features for the core blog module.') .'</p>';
+      return $output;
+    case 'admin/modules#description':
+      return t('The Advanced Blog module provides advanced features for the core blog module.');
+  }
+}
+
+/**
+ * Implementation of hook_perm().
+ */
+function advanced_blog_perm() {
+  return array('access advanced_blog', 'administer advanced_blog', 'add blog info to account');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function advanced_blog_menu() {
+  // Add main CSS functionality.
+  drupal_add_css(drupal_get_path('module', 'advanced_blog') .'/advanced_blog.css');
+
+  $items = array();
+
+  $items['admin/settings/advanced-blog'] = array(
+    'title' => 'Advanced Blog',
+    'description' => 'Control how advanced_blog displayed.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('advanced_blog_admin_settings'),
+    'access arguments' => array('administer advanced_blog'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'advanced_blog.admin.inc',
+  );
+
+  $items['advanced_blog/list'] = array(
+    'title' => 'Bloggers',
+    'page callback' => 'advanced_blog_page_list',
+    'access arguments' => array('access advanced_blog'),
+    'type' => MENU_CALLBACK,
+    'file' => 'advanced_blog.pages.inc',
+  );
+
+  $items['blog/%/%'] = array(
+    'title callback' => 'blog_nav_user_page_title',
+    'title arguments' => array(1),
+    'page callback' => 'blog_nav_page',
+    'page arguments' => array(1, 2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'weight' => -1,
+    'file' => 'advanced_blog.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Get advanced blog details for a specific user
+ */
+function advanced_blog_get_blog_details($uid, $reset = FALSE) {
+  $details = new stdClass();
+  if ($entry = advanced_blog_db_get_blog_details($uid, $reset)) {
+    $details->title = (!empty($entry->title)) ? $entry->title : NULL;
+    $details->description = (!empty($entry->description)) ? check_markup($entry->description, $entry->format) : NULL;      
+  }
+  return $details;
+}
+
+/**
+ * Get advanced blog details for a specific user from the DB
+ */
+function advanced_blog_db_get_blog_details($uid, $reset = FALSE) {
+  static $details;
+
+  if (!$details[$uid] || $reset) {
+    $details[$uid] = new stdClass();
+    $result = db_query('SELECT title, description, format FROM {advanced_blog} WHERE uid = %d', $uid);
+    if ($entry = db_fetch_object($result)) {
+      $details[$uid] = $entry;
+    }
+  }
+
+  return $details[$uid];
+}
+
+/**
+ * Implementation of hook_block().
+ *
+ * Generates advanced_blog blocks
+ */
+function advanced_blog_block($op = 'list', $delta = 0) {
+  if ($op == 'list') {
+    $blocks[0]['info'] = t('Advanced Blog: bloggers');
+    $blocks[1]['info'] = t('Advanced Blog: information');
+    $blocks[1]['cache'] = BLOCK_NO_CACHE;
+    $blocks[2]['info'] = t('Advanced Blog: blogroll');
+    $blocks[3]['info'] = t('Advanced Blog: navigation');
+    $blocks[3]['cache'] = BLOCK_NO_CACHE;
+    return $blocks;
+  }
+  if ($op == 'view') {
+    switch ($delta) {
+      // Advanced Blog: bloggers
+      case 0:
+        $block['subject'] = t('Blogs');
+        $block['content'] = advanced_blog_bloggers_list_block();
+        return $block;
+        break;
+
+      // Advanced Blog: information
+      case 1:
+        if ($node = menu_get_object()) {
+          if ($node->type == 'blog') {
+            $authorid = $node->uid;
+          }
+        }
+        elseif (arg(0) == 'blog' &&  is_numeric(arg(1))) {
+          $authorid = arg(1);
+        }
+        if (!empty($authorid)) {
+          $details = advanced_blog_get_blog_details($authorid);
+          $block['subject'] = $details->title;
+          $block['content'] = theme('advanced_blog_info_block', $details->description, $authorid);
+          return $block;
+        }
+        break;
+
+      // Advanced Blog: blogroll
+      case 2:
+        $output = array();
+        $results = db_query("SELECT uid, title FROM {advanced_blog} WHERE title <> '' ORDER BY title ASC");
+        while ($item = db_fetch_array($results)) {
+          $output[] = l($item['title'], 'blog/'. $item['uid']);
+        }
+        if (!empty($output)) {
+          $block['subject'] = t('Blog Listing');
+          $block['content'] = theme('item_list', $output);
+        }
+        return $block;
+        break;
+
+      // Advanced Blog: navigation
+      case 3:
+        if ( ((arg(0) == 'blogs')||(arg(0) == 'blog')) && !arg(1) ) {
+          $block['title'] = t('Blogs');
+          $block['content'] = advanced_blog_navigation_block_general();
+          return $block;
+        }
+        else {
+          $account = advanced_blog_get_author();
+          if ($account) {
+            $blog_info = advanced_blog_get_blog_details($account->uid);
+            $blog_title = !empty($blog_info->title) ? $blog_info->title : t("@username's blog", array("@username" => $account->name));
+            $block['title'] = $blog_title;
+            $block['content'] = advanced_blog_navigation_block_user($account, $blog_title);
+          }
+          return $block;
+        }
+      break;
+    }
+  }
+}
+
+/**
+ * Advanced Blogs block: bloggers list
+ */
+function advanced_blog_bloggers_list_block() {
+  $maxdisp = variable_get("advanced_blog_maxdisp", 10);
+  $shownum = variable_get("advanced_blog_shownum", 0);
+  $advanced_blog_order = variable_get("advanced_blog_order", 0);
+  $advanced_blog_case = variable_get("advanced_blog_case", 0);
+  $advanced_blog_avatar = variable_get("advanced_blog_avatar", 0);
+  $advanced_blog_avatar_width = variable_get("advanced_blog_avatar_width", 20);
+  $advanced_blog_avatar_height = variable_get("advanced_blog_avatar_height", 20);
+  $advanced_blog_on_blog_only = variable_get("advanced_blog_on_blog_only", 0);
+
+  if ($advanced_blog_on_blog_only) {
+    if (arg(0) != 'blog') {
+      if ($node = menu_get_object()) {
+        if ($node->type != 'blog') {
+          return FALSE;
+        }
+      }
+      else {
+        return FALSE;
+      }
+    }
+  }
+  $sql = " SELECT n.uid, u.name, count(u.name) AS numitems, u.picture "
+         . " FROM {node} n "
+         . " INNER JOIN {users} u ON u.uid = n.uid"
+         . " WHERE n.type = 'blog' and n.status <> 0 AND u.uid <> 0"
+         . " GROUP BY n.uid";
+  switch ($advanced_blog_order) {
+    case 1:
+      $sql .= " ORDER BY u.name";
+      break;
+    case 2:
+      $sql .= " ORDER BY numitems DESC, u.name";
+      break;
+    case 3:
+      $sql .= " ORDER BY n.created DESC, u.name";
+      break;
+    case 4:
+      $sql .= " ORDER BY RAND()";
+      break;
+  }
+  $results = db_query_range(db_rewrite_sql($sql), 0, $maxdisp);
+  while ($data = db_fetch_object($results)) {
+    // Mark up username
+    switch ($advanced_blog_case)  {
+      case 1: //smallcase
+        $data->name = drupal_strtolower($data->name);
+        break;
+      case 2: //uppercase
+        $data->name = drupal_strtoupper($data->name);
+        break;
+      case 3: //Wordcase
+        $data->name = ucwords($data->name);
+        break;
+    }
+    if ($shownum) {
+      $data->name = $data->name .' ('. $data->numitems . ')';
+    }
+
+    // User picture
+    $advanced_blog_img = NULL;
+    if ($advanced_blog_avatar) {
+      if (!empty($data->picture)) {
+        $advanced_blog_img = file_create_url($data->picture);
+      }
+      elseif (variable_get('user_picture_default', '')) {
+        $advanced_blog_img = file_create_url(variable_get('user_picture_default', ''));
+      }
+      if ($advanced_blog_img) {
+        $data->avatar = '<img src="' . $advanced_blog_img . '" '
+                        . ($advanced_blog_avatar_width <> 0 ? ' width="' . $advanced_blog_avatar_width .'"' : '')
+                        . ($advanced_blog_avatar_height <> 0 ? ' height="' . $advanced_blog_avatar_height . '"' : '')
+                        . ' />';
+        $data->avatar_width = $advanced_blog_avatar_width;
+        $data->avatar_height = $advanced_blog_avatar_height;
+      }
+    }
+    $entries[] = $data;
+  }
+  return theme('advanced_blog_bloggers_list_block', $entries);
+}
+
+/**
+ * Themeable output for advanced_blog bloggers list
+ */
+function theme_advanced_blog_bloggers_list_block($entries) {
+  if ($entries) {
+    $header = array();
+    $rows = array();
+    $output = '<div id="advanced_blog">';
+    foreach ($entries as $entry) {
+      $row = array();
+      if ($entry->avatar) {
+        $row[] = array('data' => $entry->avatar, 'width' => $entry->avatar_width);
+      }
+      $row[] = l($entry->name, 'blog/' . $entry->uid);
+      $rows[] = array('data' => $row);
+    }
+    $output .= theme('table', $header, $rows);
+    $output .= '</div>';
+
+    $output .= '<div class="more-link">';
+    $output .= l(t("more"), "advanced_blog/list", array("title" => t("More advanced_blog...")));
+    $output .= '</div>';
+  }
+  return $output;
+}
+
+/**
+ * Advanced blog: navigation block - general
+ */
+function advanced_blog_navigation_block_general() {
+  $account = advanced_blog_get_author();
+  $top_bloggers = array();
+  $num_top_bloggers = variable_get('blog_nav_ntopbloggers', 5);
+  $query = "SELECT u.uid, u.name, COUNT(n.uid) AS nposts FROM {users} u INNER JOIN {node} n ON u.uid = n.uid WHERE n.status = 1 AND n.type = 'blog' AND u.uid <> 0 GROUP BY u.uid ORDER BY nposts DESC";
+  $result = db_query_range(db_rewrite_sql($query), 0, $num_top_bloggers);
+  while ($blogger = db_fetch_object($result)) {
+    $top_bloggers[] = l($blogger->name, 'blog/' . $blogger->uid) . "  (" . $blogger->nposts . ")";
+  }
+  $more_attr = array("title" => t("Click for more bloggers"));
+  // @TODO: this link points to nowhere...
+  //$top_bloggers[] = l(t("more ..."), 'blogs/blogs', array('attributes' => $more_attr, 'query' => "&sort=nposts&order=desc"));
+  return theme('advanced_blog_navigation_general', $top_bloggers, $account);
+}
+
+/**
+ * Theme function to render general advanced blog navigation block
+ */
+function theme_advanced_blog_navigation_general($top_bloggers, $account) {
+  global $user;
+  $navigation = array();
+
+  if ($account->uid && $user->uid == $account->uid) {
+    $navigation[] = l(t("My blog"), 'blog/'. $user->name);
+    if (user_access('create blog entries')) {
+      $navigation[] = l(t('Post new blog entry'), 'node/add/blog');
+    }
+  }
+  $navigation[] = t('Top bloggers') . theme('item_list', $top_bloggers);
+  //@TODO: this link points to nowhere...
+  //$navigation[] = l(t("Recent posts"), 'blogs/posts', array('query' => "&sort=date&order=desc"));
+  return theme('item_list', $navigation);
+}
+
+/**
+ * Advanced blog navigation block: posts per month
+ */
+function advanced_blog_navigation_block_user($account, $blog_title) {
+  global $user;
+  if ($account->uid) {
+    $items = array();
+    $items[] = l($blog_title, 'blog/' . $account->uid);
+    if (($account->uid == $user->uid) && user_access('create blog entries')) {
+      $items[] = l(t('Post new blog entry'), 'node/add/blog');
+    }
+
+    $date_arr = array();
+    $query = "SELECT n.nid, n.created FROM {node} n WHERE n.type = 'blog' AND n.status <> 0 AND n.uid = %d ORDER BY n.created DESC";
+    $result = db_query(db_rewrite_sql($query), $account->uid);
+    while ($entry = db_fetch_object($result)) {
+      $year_num = date('Y', $entry->created);
+      $month_num = date('m', $entry->created);
+      $date_arr[$year_num][$month_num][] = $entry;
+    }
+
+    if ($date_arr) {
+      $year_items = array();
+      foreach ($date_arr as $year => $months) {
+        $year_output = '';
+        $year_output .= l($year, 'blog/' . $account->name . '/' . $year);
+        if ($months) {
+          $month_items = array();
+          foreach ($months as $month => $entries) {
+            $month_name = format_date($entries[0]->created, 'custom', 'F');
+            $month_count = count($entries);
+            $month_items[] = l($month_name, 'blog/' . $account->name . '/' . $year . '/' . $month) . ' (' . $month_count . ')';
+          }
+        }
+        $year_output .= theme('item_list', $month_items);
+        $year_items[] = $year_output;
+      }
+    }
+
+    $items[] = t('Posts') . theme('item_list', $year_items);
+    return theme('item_list', $items);
+  }
+}
+
+/**
+ * Helper function to identify blog author
+ */
+function advanced_blog_get_author() {
+  if (arg(0) == 'blog') {
+    if (is_numeric(arg(1))) {
+      $account = user_load(array('uid' =>  arg(1)));
+    }
+    else {
+      $account = user_load(array('name' =>  arg(1)));
+    }
+  }
+  elseif (arg(0) == 'node') {
+    if (is_numeric(arg(1))) {
+      $node = node_load(arg(1));
+      if ($node->type == 'blog') {
+        $account = user_load(array('uid' =>  $node->uid));
+      }
+    }
+  }
+  return $account;
+}
+
+/**
+ * Title callback function
+ */
+function blog_nav_user_page_title($user) {
+  if (is_numeric($user)) {
+    $account = user_load(array('uid' =>  $user));
+  }
+  elseif (is_object($user)) {
+    $account = $user;
+  }
+  else {
+    $account = user_load(array('name' => $user));
+  }
+  if ($account->uid) {
+    $blog_info = advanced_blog_get_blog_details($account->uid);
+    if ($blog_info->title) {
+      return check_plain($blog_info->title);
+    }
+  }
+
+  return t("@username's blog", array("@username" => $account->name));
+}
+
+/**
+ * Implementation of hook_user().
+ */
+function advanced_blog_user($op, &$edit, &$account, $category = NULL) {
+  switch ($op) {
+    case 'update':
+    case 'insert':
+      return advanced_blog_save_advanced_blog($edit, $account, $category);
+    case 'form':
+      return advanced_blog_form_advanced_blog($edit, $account, $category);
+    case 'delete':
+      db_query('DELETE FROM {advanced_blog} WHERE uid = %d', $account->uid);
+  }
+}
+
+/**
+  * Helper function: create the form on the user settings page
+  */
+function advanced_blog_form_advanced_blog($edit, $account, $category) {
+  if ($category == 'account' && (user_access('add blog info to account') || user_access('administer advanced_blog'))) {
+    $details = advanced_blog_db_get_blog_details($account->uid);
+    $fields['advanced_blog_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Blog Information'),
+      '#weight' => 5,
+    );
+    $fields['advanced_blog_settings']['title'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Blog Title'),
+      '#maxlength' => 128,
+      '#default_value' => $details->title,
+      '#description' => t('Your blog title will display on your blog and blog posts.'),
+    );
+    $fields['advanced_blog_settings']['description'] = array(
+      '#type' => 'textarea',
+      '#title' => t('Blog Description'),
+      '#default_value' => $details->description,
+      '#description' => t('Your blog description will display on your blog and blog posts.'),
+    );
+    $fields['advanced_blog_settings']['desc_format'] = filter_form($details->format);
+    return $fields;
+  }
+}
+
+/**
+  * Helper function: insert / update advanced_blog data into the database
+  */
+function advanced_blog_save_advanced_blog(&$edit, &$account, $category) {
+  if ($category == 'account') {
+    $uid = $account->uid;
+
+    $entry = array();
+    $entry['uid'] = $uid;
+    $entry['title'] = $edit['title'];
+    $entry['description'] = $edit['description'];
+    $entry['format'] = $edit['format'];
+
+    $existing = db_result(db_query("SELECT uid FROM {advanced_blog} WHERE uid = %d", $uid));
+    if ($existing) {
+      drupal_write_record('advanced_blog', $entry, 'uid');
+    }
+    else {
+      drupal_write_record('advanced_blog', $entry);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ */
+function advanced_blog_menu_alter(&$callbacks) {
+  $callbacks['blog/%user_uid_optional']['page callback'] = 'advanced_blog_page_user';
+  // Use wrapper function instead of blog_feed_user() so the feed title
+  // can be set.
+  $callbacks['blog/%user/feed']['page callback'] = 'advanced_blog_feed_user';
+}
+
+/**
+ * Implementation of hook_link_alter().
+ *
+ * Changes the link title on a blog node
+ */
+function advanced_blog_link_alter(&$links, $node) {
+  foreach ($links as $module => &$link) {
+    if ($module == 'blog_usernames_blog') {
+      $advanced_blog_info = advanced_blog_get_blog_details($node->uid);
+      if ($advanced_blog_info->title) {
+        $link['title'] = $advanced_blog_info->title;
+      }
+    }
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function advanced_blog_theme() {
+  return array(
+    'advanced_blog_info_block' => array(
+      'arguments' => array(
+        'description' => NULL,
+        'author' => NULL,
+      ),
+    ),
+
+    'advanced_blog_nav_page_results' => array(
+      'arguments' => array(
+        'result' => NULL,
+        'pager_attrib' => NULL,
+      ),
+    ),
+
+    'advanced_blog_nav_sort' => array(
+      'arguments' => array(
+        'attributes' => NULL,
+      ),
+    ),
+
+    'advanced_blog_page_blogger_item' => array(
+      'arguments' => array(
+        'account' => NULL,
+        'details' => NULL,
+        'posts' => NULL,
+      ),
+    ),
+
+    'advanced_blog_bloggers_list_block' => array(
+      'arguments' => array(
+        'entries' => NULL,
+      ),
+    ),
+
+    'advanced_blog_navigation_general' => array(
+      'arguments' => array(
+        'top_bloggers' => NULL,
+        'account' => NULL,
+      ),
+    ),
+  );
+}
+
+/**
+ * Themeable output for advanced_blog information block
+ */
+function theme_advanced_blog_info_block($description, $author) {
+  return $description;
+}
+
+/**
+ * Menu callback; displays a Drupal page containing recent blog entries of a given user.
+ *
+ * Customization of blog_page_user().
+ */
+function advanced_blog_page_user($account) {
+  global $user;
+  $blog_info = advanced_blog_get_blog_details($account->uid);
+  if ($blog_info->title) {
+    drupal_set_title(check_plain($blog_info->title));
+  }
+  else {
+    drupal_set_title($title = t("@name's blog", array('@name' => $account->name)));
+  }
+
+  $items = array();
+
+  if (($account->uid == $user->uid) && user_access('create blog entries')) {
+    $items[] = l(t('Post new blog entry.'), "node/add/blog");
+  }
+  else if ($account->uid == $user->uid) {
+    $items[] = t('You are not allowed to post a new blog entry.');
+  }
+
+  $output = theme('item_list', $items);
+
+  $result = pager_query(db_rewrite_sql("SELECT n.nid, n.sticky, n.created FROM {node} n WHERE n.type = 'blog' AND n.uid = %d AND n.status = 1 ORDER BY n.sticky DESC, n.created DESC"), variable_get('default_nodes_main', 10), 0, NULL, $account->uid);
+  $has_posts = FALSE;
+
+  while ($node = db_fetch_object($result)) {
+    $output .= node_view(node_load($node->nid), 1);
+    $has_posts = TRUE;
+  }
+
+  if ($has_posts) {
+    $output .= theme('pager', NULL, variable_get('default_nodes_main', 10));
+  }
+  else {
+    if ($account->uid == $user->uid) {
+      drupal_set_message(t('You have not created any blog entries.'));
+    }
+    else {
+      drupal_set_message(t('!author has not created any blog entries.', array('!author' => theme('username', $account))));
+    }
+  }
+  drupal_add_feed(url('blog/'. $account->uid .'/feed'), t('RSS - !title', array('!title' => $title)));
+
+  return $output;
+}
+
+/**
+ * Menu callback; displays an RSS feed containing recent blog entries of all users.
+ *
+ * Customization of blog_feed_user().
+ */
+function advanced_blog_feed_user($account) {
+  $result = db_query_range(db_rewrite_sql("SELECT n.nid, n.created FROM {node} n  WHERE n.type = 'blog' AND n.uid = %d AND n.status = 1 ORDER BY n.created DESC"), $account->uid, 0, variable_get('feed_default_items', 10));
+  $advanced_blog_info = advanced_blog_get_blog_details($account->uid);
+  if ($advanced_blog_info && $advanced_blog_info->title) {
+    $channel['title'] = check_plain($advanced_blog_info->title);
+    $channel['description'] = $advanced_blog_info->description;
+  }
+  else {
+    // default
+    $channel['title'] = t("!name's blog", array('!name' => $account->name));
+  }
+  $channel['link'] = url('blog/'. $account->uid, array('absolute' => TRUE));
+
+  $items = array();
+  while ($row = db_fetch_object($result)) {
+    $items[] = $row->nid;
+  }
+  node_feed($items, $channel);
+}
+
+/**
+ * Implementation of hook_token_values().
+ */
+function advanced_blog_token_values($type, $object = NULL, $options = array()) {
+  // @TODO: add -raw variants of tokens, by calling advanced_blog_db_get_blog_details() directly
+  if ($type == 'node' || $type == 'blog') {
+    $details = advanced_blog_get_blog_details($object->uid, TRUE);
+    if ($details->title) {
+      $tokens['blog-title'] = check_plain($details->title);
+    }
+    else {
+      $tokens['blog-title'] = $object->name;
+    }
+  }
+
+  if ($type == 'user') {
+    $details = advanced_blog_get_blog_details($object->uid, TRUE);
+    if ($details->title) {
+      $tokens['user-blog-title'] = check_plain($details->title);
+    }
+    else {
+      $tokens['user-blog-title'] = $object->name;
+    }
+  }
+  return $tokens;
+}
+
+/**
+ * Implementation of hook_token_list().
+ */
+function advanced_blog_token_list($type = 'all') {
+  if ($type == 'user' || $type == 'all') {
+    $tokens['user']['user-blog-title'] = 'Blog Title from advanced_blog module, or username if no blog title is provided.';
+  }
+  if ($type == 'node' || $type == 'all') {
+    $tokens['node']['blog-title'] = 'Blog Title from advanced_blog module, or username if no blog title is provided.';
+  } 
+  return $tokens;
+}
+
+##########################################################
+#    DEPRECATED CODE - this code was never functional
+##########################################################
+
+/*
+function blog_nav_bloggers()
+{
+  $pager_attrib = array('sort' => variable_get('blog_nav_sort', 'nposts'), 'order' => variable_get('blog_nav_order', 'DESC'));
+
+  if (isset($_GET['order']))
+  {
+    $pager_attrib['order'] = ($_GET['order'] == 'desc') ? 'desc' : 'asc';
+  }
+
+  if (isset($_GET['sort']))
+  {
+    switch($_GET['sort'])
+    {
+      case 'name':
+        $pager_attrib['sort'] = ($_GET['sort'] == 'name') ? 'name' : 'name';
+      break;
+      case 'nposts':
+        $pager_attrib['sort'] = ($_GET['sort'] == 'nposts') ? 'nposts' : 'nposts';
+      break;
+      default:
+        $pager_attrib['sort'] =  'name';
+      break;
+   }
+ }
+ switch ($pager_attrib['sort'])
+ {
+    case 'name':
+      $sortby = " ORDER BY u.name " . $pager_attrib['order'] . " ";
+    break;
+    case 'nposts':
+      $sortby = " ORDER BY nposts " . $pager_attrib['order'] . " ";
+    break;
+    default:
+     $sortby = " ORDER By u.name ASC ";
+    break;
+  }
+
+  $query = "SELECT COUNT(DISTINCT(u.name)) FROM {users} u INNER JOIN {node} n ON u.uid = n.uid WHERE n.type = 'blog'";
+  $counts = db_rewrite_sql($query);
+
+  $query = "SELECT u.name, COUNT(n.uid) AS nposts FROM {users} u INNER JOIN {node} n ON u.uid = n.uid WHERE n.status=1 AND n.type = 'blog' GROUP BY u.uid " . $sortby;
+  $result = pager_query(db_rewrite_sql($query), variable_get('blog_nav_nbloggers', 20),0,$counts);
+
+  blog_nav_show_bloggers($result,$pager_attrib );
+
+}
+
+
+function blog_nav_show_bloggers($result, $attrib = array('sort' => 'name', 'order' => 'ASC'))
+{
+//  drupal_set_title(t('Bloggers'));
+//  drupal_add_css(drupal_get_path('module', 'blog_nav').'/blog_nav.css');
+  global $pager_total_items;
+  $order = ($attrib['order'] == "desc" || $attrib['order'] == "DESC")?"asc":"desc";
+  $sort_attr = array("title"=>t("Click a second time to reverse the sort order"));
+  $content .= '<div class="blog_nav-sort">Sort by:';
+  $content .= "[".l(t("Name"), $_GET['q'], array('attributes' => $sort_attr, 'query' => "&sort=name&order=$order"));
+  $content .= "][".l(t("Number of posts"), $_GET['q'], array('attributes' => $sort_attr, 'query' => "&sort=nposts&order=$order"));
+  $content .= "]</div><br> ";
+  while ($blogger = db_fetch_object($result))
+  {
+    $content .= l($blogger->name,'blog/'.$blogger->name) . "  (" . $blogger->nposts . ") <br>";
+  }
+
+  $content .= theme('pager',0,variable_get('blog_nav_nbloggers', 20));
+  print theme('page',$content);
+}
+
+function blog_nav_recentposts()
+{
+ $pager_attrib = array("sort" => variable_get('blog_nav_sort', 'date'), 'order' => variable_get('blog_nav_order', 'DESC'));
+
+  if (isset($_GET['order']))
+  {
+    $pager_attrib['order'] = ($_GET['order'] == 'desc') ? 'desc' : 'asc';
+  }
+
+  if (isset($_GET['sort']))
+  {
+    switch($_GET['sort'])
+    {
+      case 'date':
+        $pager_attrib['sort'] = ($_GET['sort'] == 'date') ? 'date' : 'date';
+      break;
+      default:
+        $pager_attrib['sort'] =  'date';
+      break;
+    }
+  }
+
+  switch ($pager_attrib['sort'])
+  {
+      case 'date':
+        $sortby = " ORDER BY n.created " . $pager_attrib['order'] . " ";
+      break;
+      default:
+        $sortby = " ORDER By n.created ASC ";
+      break;
+  }
+
+  $query = "SELECT n.nid, n.created FROM {node} n WHERE n.type = 'blog' AND n.status = 1 " . $sortby;
+  $result = pager_query(db_rewrite_sql($query), variable_get('blog_nav_nposts', 10),0);
+  blog_nav_show_recentposts($result,$pager_attrib );
+
+}
+
+function blog_nav_show_recentposts($result, $attrib = array("sort" => 'date', 'order' => 'ASC'))
+{
+  drupal_add_css(drupal_get_path('module', 'blog_nav').'/blog_nav.css');
+  global $pager_total_items;
+
+  $order = ($attrib['order'] == "desc" || $attrib['order'] == "DESC")?"asc":"desc";
+  $sort_attr = array("title"=>t("Click a second time to reverse the sort order"));
+  $content .= '<div class="blog_nav-sort">Sort by:';
+  $content .= "[".l(t("Date"), $_GET['q'], array('attributes' => $sort_attr, 'query' => "&sort=date&order=$order"));
+  $content .= "]</div> <br> ";
+
+//  drupal_set_title(t('Blog posts'));
+
+  while ($blogentry = db_fetch_object($result))
+  {
+    $content .= node_view(node_load($blogentry->nid),1);
+  }
+
+  $content .= theme('pager',0,variable_get('blog_nav_nposts', 10));
+  print theme('page',$content);
+}
+ */

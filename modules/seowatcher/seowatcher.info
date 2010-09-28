@@ -1,0 +1,12 @@
+; $Id:
+name = SEO Watcher
+description = Checks and reports search engine ranking of the site.
+core = 6.x
+package = SEO
+
+; Information added by drupal.org packaging script on 2010-01-24
+version = "6.x-1.0-beta2"
+core = "6.x"
+project = "seowatcher"
+datestamp = "1264347908"
+

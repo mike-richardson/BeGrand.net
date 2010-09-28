@@ -1,0 +1,22 @@
+Index: imagefield_file.inc
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/imagefield/imagefield_file.inc,v
+retrieving revision 1.18
+diff -u -r1.18 imagefield_file.inc
+--- imagefield_file.inc	14 Apr 2009 01:28:52 -0000	1.18
++++ imagefield_file.inc	6 Nov 2009 17:12:30 -0000
+@@ -86,7 +86,13 @@
+   if ($info['width'] <= $size[0] && $info['height'] <= $size[1]) {
+     file_copy($source, $destination);
+   }
+-  elseif (image_get_toolkit() && @image_scale($source, $destination, $size[0], $size[1])) {
++  // use ImageAPI, if installed
++  elseif (module_exists('imageapi') && imageapi_default_toolkit()) {
++    $res = imageapi_image_open($source);
++    imageapi_image_scale($res, $size[0], $size[1]);
++    imageapi_image_close($res, $destination);
++  }
++  elseif (image_get_toolkit() && image_scale($source, $destination, $size[0], $size[1])) {
+     // Set permissions. This is done for us when using file_copy().
+     @chmod($destination, 0664);
+   }

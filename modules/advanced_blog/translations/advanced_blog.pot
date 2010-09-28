@@ -1,0 +1,272 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  advanced_blog.admin.inc,v 1.1 2010/03/23 10:32:40 xeniox
+#  advanced_blog.pages.inc,v 1.6 2010/05/02 14:44:31 xeniox
+#  advanced_blog.module,v 1.16 2010/05/02 14:54:11 xeniox
+#  advanced_blog.info,v 1.1 2009/05/21 06:21:49 eidolonnight
+#  advanced_blog.install,v 1.4 2010/03/26 15:13:12 xeniox
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2010-05-02 17:07+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: advanced_blog.admin.inc:13
+msgid "Basic settings"
+msgstr ""
+
+#: advanced_blog.admin.inc:20
+msgid "Maximum number of advanced_blog"
+msgstr ""
+
+#: advanced_blog.admin.inc:22
+msgid "The maximum number of bloggers to display in the block."
+msgstr ""
+
+#: advanced_blog.admin.inc:29
+msgid "Show number of blog entries."
+msgstr ""
+
+#: advanced_blog.admin.inc:31
+msgid "Display how many blog entries have been written, i.e: Samuel(7), Linda(10)."
+msgstr ""
+
+#: advanced_blog.admin.inc:38
+msgid "Order by"
+msgstr ""
+
+#: advanced_blog.admin.inc:40
+msgid "none"
+msgstr ""
+
+#: advanced_blog.admin.inc:40
+msgid "Name"
+msgstr ""
+
+#: advanced_blog.admin.inc:40
+msgid "Post Count"
+msgstr ""
+
+#: advanced_blog.admin.inc:40 advanced_blog.pages.inc:106
+msgid "Date"
+msgstr ""
+
+#: advanced_blog.admin.inc:40
+msgid "Random"
+msgstr ""
+
+#: advanced_blog.admin.inc:41
+msgid "No order, order by name, number of entries, date or random."
+msgstr ""
+
+#: advanced_blog.admin.inc:46
+msgid "Case format"
+msgstr ""
+
+#: advanced_blog.admin.inc:48
+msgid "None"
+msgstr ""
+
+#: advanced_blog.admin.inc:48
+msgid "Smallcase"
+msgstr ""
+
+#: advanced_blog.admin.inc:48
+msgid "Uppercase"
+msgstr ""
+
+#: advanced_blog.admin.inc:48
+msgid "Wordcase"
+msgstr ""
+
+#: advanced_blog.admin.inc:49
+msgid "Change the case format of bloggers' names displayed in lists."
+msgstr ""
+
+#: advanced_blog.admin.inc:55
+msgid "Advanced settings"
+msgstr ""
+
+#: advanced_blog.admin.inc:62
+msgid "Show advanced_blog module when content type is blog only."
+msgstr ""
+
+#: advanced_blog.admin.inc:64
+msgid "Only show blog list on blog pages."
+msgstr ""
+
+#: advanced_blog.admin.inc:72
+msgid "Avatar settings"
+msgstr ""
+
+#: advanced_blog.admin.inc:79
+msgid "Show advanced_blog's avatar."
+msgstr ""
+
+#: advanced_blog.admin.inc:81
+msgid "Display bloggers' avatars in lists."
+msgstr ""
+
+#: advanced_blog.admin.inc:88
+msgid "Avatar width"
+msgstr ""
+
+#: advanced_blog.admin.inc:90
+msgid "Set avatar width in px. Set to 0 (zero) if you want to use original width. If you want to set 200 px width then just enter 200 (without px). Tip: to keep picture aspect ratio then you can set the width to certain value but set to 0 (zero) the height value."
+msgstr ""
+
+#: advanced_blog.admin.inc:97
+msgid "Avatar height"
+msgstr ""
+
+#: advanced_blog.admin.inc:99
+msgid "Set avatar height in px. Set to 0 (zero) if you want to use original height."
+msgstr ""
+
+#: advanced_blog.pages.inc:102
+msgid "Click a second time to reverse the sort order"
+msgstr ""
+
+#: advanced_blog.pages.inc:104
+msgid "Sort by:"
+msgstr ""
+
+#: advanced_blog.pages.inc:105
+msgid "Title"
+msgstr ""
+
+#: advanced_blog.pages.inc:171
+msgid "more..."
+msgstr ""
+
+#: advanced_blog.pages.inc:189
+msgid "Contact me"
+msgstr ""
+
+#: advanced_blog.pages.inc:197 advanced_blog.module:353
+msgid "Posts"
+msgstr ""
+
+#: advanced_blog.module:14;17
+msgid "The Advanced Blog module provides advanced features for the core blog module."
+msgstr ""
+
+#: advanced_blog.module:105
+msgid "Advanced Blog: bloggers"
+msgstr ""
+
+#: advanced_blog.module:106
+msgid "Advanced Blog: information"
+msgstr ""
+
+#: advanced_blog.module:107
+msgid "Advanced Blog: blogroll"
+msgstr ""
+
+#: advanced_blog.module:108
+msgid "Advanced Blog: navigation"
+msgstr ""
+
+#: advanced_blog.module:115;152
+msgid "Blogs"
+msgstr ""
+
+#: advanced_blog.module:144
+msgid "Blog Listing"
+msgstr ""
+
+#: advanced_blog.module:159;321;391
+msgid "@username's blog"
+msgstr ""
+
+#: advanced_blog.module:274
+msgid "more"
+msgstr ""
+
+#: advanced_blog.module:274
+msgid "More advanced_blog..."
+msgstr ""
+
+#: advanced_blog.module:292
+msgid "Click for more bloggers"
+msgstr ""
+
+#: advanced_blog.module:305
+msgid "My blog"
+msgstr ""
+
+#: advanced_blog.module:306;323
+msgid "Post new blog entry"
+msgstr ""
+
+#: advanced_blog.module:308
+msgid "Top bloggers"
+msgstr ""
+
+#: advanced_blog.module:417
+msgid "Blog Information"
+msgstr ""
+
+#: advanced_blog.module:422
+msgid "Blog Title"
+msgstr ""
+
+#: advanced_blog.module:425
+msgid "Your blog title will display on your blog and blog posts."
+msgstr ""
+
+#: advanced_blog.module:429
+msgid "Blog Description"
+msgstr ""
+
+#: advanced_blog.module:431
+msgid "Your blog description will display on your blog and blog posts."
+msgstr ""
+
+#: advanced_blog.module:552
+msgid "!name's blog"
+msgstr ""
+
+#: advanced_blog.module:25
+msgid "access advanced_blog"
+msgstr ""
+
+#: advanced_blog.module:25
+msgid "administer advanced_blog"
+msgstr ""
+
+#: advanced_blog.module:25
+msgid "add blog info to account"
+msgstr ""
+
+#: advanced_blog.module:38 advanced_blog.info:0
+msgid "Advanced Blog"
+msgstr ""
+
+#: advanced_blog.module:39
+msgid "Control how advanced_blog displayed."
+msgstr ""
+
+#: advanced_blog.module:48
+msgid "Bloggers"
+msgstr ""
+
+#: advanced_blog.install:27
+msgid "This holds the advanced_blog data."
+msgstr ""
+
+#: advanced_blog.info:0
+msgid "Added features for Drupal blogs."
+msgstr ""
+

@@ -1,0 +1,78 @@
+<?php
+// $Id: taxonomy_vtn.install,v 1.1.2.8 2008/12/13 01:56:12 alexiswilke Exp $
+
+/**
+ * @file
+ * The installation file, now for:
+ * - delete veriables
+ * - check requirements
+ *
+ */
+
+
+/**
+ * Implementation of hook_requirements($phase)
+ */
+function taxonomy_vtn_requirements($phase) {
+  $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  // Report Drupal version
+  /*
+  $requirements['taxonomy_vtn'] = array(
+    'title' => $t('Drupal'),
+    'value' => VERSION,
+    'severity' => REQUIREMENT_INFO,
+    );
+  */
+
+  // Test Drupal version
+  /*
+  if (version_compare(VERSION, '6.2', '<')) {
+    $msg = $t('Your Drupal installation is too old. The Taxonomy VTN module requires at least 6.2.');
+    drupal_set_message($msg, 'error');
+    $requirements['taxonomy_vtn']['description'] = $msg;
+    $requirements['taxonomy_vtn']['severity'] = REQUIREMENT_ERROR;
+  }
+  */
+
+  // Test PHP version
+  /*
+  $requirements['php'] = array(
+    'title' => $t('PHP'),
+    'value' => ($phase == 'runtime') ? l(phpversion(), 'admin/logs/status/php') : phpversion(),
+  );
+  if (version_compare(phpversion(), '4.4.0', '<') || version_compare(phpversion(), '5.0.2', '<')) {
+    $requirements['php']['description'] = $t('Your PHP installation is too old. Drupal requires at least PHP %version or %version2.', array('%version' => '4.4.0', '%version2' => '5.0.2'));
+    $requirements['php']['severity'] = REQUIREMENT_ERROR;
+  }
+  */
+
+  return $requirements;
+}
+
+
+/**
+ * Implementation of hook_enable().
+ */
+function taxonomy_vtn_enable() {
+  module_invoke('taxonomy_vtn', 'checklocales');
+
+  drupal_set_message(t('The Taxonomy VTN module has been enabled. You may wish to go to <a href="!url">the settings page</a>.', array('!url' => url('admin/settings/taxonomy_vtn'))));
+
+}
+
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function taxonomy_vtn_uninstall() {
+  global $user;
+
+  db_query("DELETE FROM {variable} WHERE name LIKE 'taxonomy_vtn_%%'");
+
+  watchdog('Taxonomy VTN', 'Taxonomy VTN module uninstalled by @user.', array('@user' => $user->name));
+  drupal_set_message(t('The Taxonomy VTN module has been uninstalled.'), 'status');
+}
+

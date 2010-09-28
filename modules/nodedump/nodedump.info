@@ -1,0 +1,13 @@
+; $Id: nodedump.info,v 1.1 2010/05/12 00:40:32 pglatz Exp $
+name = Nodedump 
+package = "Development"
+description = Admin tool to dump node contents. 
+core = 6.x
+php = 5.2
+
+; Information added by drupal.org packaging script on 2010-05-12
+version = "6.x-1.0"
+core = "6.x"
+project = "nodedump"
+datestamp = "1273630507"
+

@@ -1,0 +1,13 @@
+; $Id$
+name = GetClicky - Web Analytics in Real Time
+description = Adds GetClicky javascript tracking code to your site pages.
+package = Statistics
+core = 6.x
+
+
+; Information added by drupal.org packaging script on 2009-12-03
+version = "6.x-1.4"
+core = "6.x"
+project = "getclicky"
+datestamp = "1259811033"
+

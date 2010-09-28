@@ -1,0 +1,28 @@
+Index: popups.js
+===================================================================
+RCS file: /cvs/drupal-contrib/contributions/modules/popups/popups.js,v
+retrieving revision 1.9.8.15
+diff -u -p -r1.9.8.15 popups.js
+--- popups.js	26 Mar 2009 17:30:54 -0000	1.9.8.15
++++ popups.js	14 Jul 2009 19:35:25 -0000
+@@ -499,8 +499,10 @@ Popups.resizeAndCenter = function(popup)
+     $popup.height(popupHeight);
+   }  
+   var top = (windowHeight / 2) - (popupHeight / 2) + Popups.scrollTop();
++  var marginTop = (popupHeight / -2);
++  var marginLeft = (popupWidth / -2);
+ 
+-  $popup.css('top', top).css('left', left); // Position the popups to be visible. 
++  $popup.css('top', '50%').css('left', '50%').css('margin-top', marginTop).css('margin-left', marginLeft); // Position the popups to be visible. 
+ };
+   
+ 
+@@ -556,7 +558,7 @@ Popups.addOverlay = function() {
+     $overlay.css('opacity', '0.4'); // for ie6(?)
+     // Doing absolute positioning, so make overlay's size equal the entire body.
+     var $doc = $(document);
+-    $overlay.width($doc.width()).height($doc.height()); 
++    $overlay.width('100%').height($doc.height()); 
+     $overlay.click(function(){Popups.close();});
+     $('body').prepend($overlay);
+   }

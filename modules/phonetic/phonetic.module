@@ -1,0 +1,228 @@
+<?php
+
+/**
+* Display help and module information
+* @param path which path of the site we're displaying help
+* @param arg array that holds the current path as would be returned from arg() function
+* @return help text for the path
+*/
+function phonetic_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#phonetic":
+      $output = '<p>'.  t("Filters unwanted words out of user generated content.") .'</p>';
+      break;
+  }
+  return $output;
+} // function onthisdate_help
+
+/**
+* Valid permissions for this module
+* @return array An array of valid permissions for the phonetic module
+*/
+
+function phonetic_perm() {
+  return array('administer phonetic filter');
+}
+
+/**
+*Implementation of hook_menu
+*/
+
+function phonetic_menu(){
+	$items = array();
+
+	$items['admin/settings/phoneticfilter'] = array(
+		'title' => 'Phonetic Filter Settings',
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('phonetic_list_add'),
+		'access arguments' => array('administer phonetic filter'),
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+  return $items;
+}
+
+/**
+*The Phonetic Filter Admin Settings Form
+*/
+
+function phonetic_list_add(){
+	
+	$blacklist = variable_get('phonetic_blacklist','');
+	$whitelist = variable_get('phonetic_whitelist','');
+	
+	
+	foreach($blacklist as $word => $meta){
+		$words .= "$word\n";
+	}
+	
+	//$words = $words(string);
+	$form = array();
+	$form['words']  = array(
+		'#type'=>'fieldset',
+		'#title'=> 'Wordlists', 
+	);
+	$form['filtersettings'] = array(
+		'#type'=>'fieldset',
+		'#title'=> 'Filter Settings', 
+	);
+	$form['words']['phonetic_blacklist'] = array(
+		'#title'=>t('blacklist'),
+		'#type'=>'textarea',
+		'#default_value'=>check_plain($words),
+		'#rows'=>20,
+		'#description'=> t('Enter all unwanted words. User one Word per line.'),
+	);
+	$form['filtersettings']['phonetic_replacement_char'] = array(
+		'#title'=>t('Replacement Character'),
+		'#type'=>'textfield',
+		'#default_value'=>variable_get('phonetic_replacement_char','*'),
+		'#size'=>1,
+		'#description'=> t('Masks all letters of the unwanted word with this Character.'),
+	);
+	
+	$form['filtersettings']['phonetic_node_title'] = array(
+		'#title'=>t('Filter Node Titles'),
+		'#type'=>'checkbox',
+		'#default_value'=>variable_get('phonetic_node_title',FALSE),
+		'#description'=> t('Check this if you like to have filtered Node Titles as well.'),
+	);
+	
+	$form['words']['phonetic_whitelist'] = array(
+		'#title'=>t('Whitelist'),
+		'#type'=>'textarea',
+		'#default_value'=>$whitelist,
+		'#rows'=>20,
+		'#description'=> t('Enter all words which got accidentely filtered by this module. One word per line.'),
+	);
+	
+	$form['phonetic_submit'] = array(
+		'#type'=>'submit',
+		'#value'=>'save settings',
+	);
+	
+	$form['#submit'] = array('phonetic_list_save');
+
+	
+	return $form;
+	
+}
+
+/**
+*Saves the wordfilter settings
+*/
+
+function phonetic_list_save(&$form_state){
+	//print_r($form_state['#post']);
+	$words = explode("\n", $form_state['#post']['phonetic_blacklist']);
+	$words = array_map('trim', $words);
+	$words = array_filter($words, 'strlen');
+	
+	foreach ($words as $word) {
+		
+		$metaphone = metaphone($word);
+		$blacklist[$word] = $metaphone;
+	    //db_query("INSERT INTO {phonetic_filter} (words, metaphone) VALUES ('%s', '%s')", $word,$metaphone);
+	    
+	}
+	//variable_del('phonetic_replacement_char');
+	variable_set('phonetic_replacement_char',$form_state['#post']['phonetic_replacement_char']);
+	//variable_del('phonetic_blacklist');
+	variable_set('phonetic_blacklist',$blacklist);
+	
+	variable_set('phonetic_node_title',$form_state['#post']['phonetic_node_title']);
+	
+	variable_set('phonetic_whitelist',$form_state['#post']['phonetic_whitelist']);
+	//$message = t('Added filter for: %words', array('%words' => $words));
+	watchdog('wordfilter', $message);
+	drupal_set_message($message);
+}
+
+function phonetic_admin_list(){
+	
+}
+
+/**
+*Implementation of hook_filter_process
+*/
+
+function phonetic_filter_process($text) {
+
+  $arr = str_word_count(strip_tags($text),2);
+  $blacklist = variable_get('phonetic_blacklist','');  
+  $whitelist = variable_get('phonetic_whitelist','');
+  $whitewords = explode("\n",$whitelist);
+  
+  foreach($arr as $word){
+	$met = metaphone($word);
+	
+	foreach($blacklist as $key => $value){
+		if($value == $met){
+	      if(!in_array($word,$whitewords)){
+	  			$strlen = strlen($key);
+	  			$compare = similar_text(strtolower($word),$key);
+	  			if($strlen == $compare){
+	  				for($i=0;$i<strlen($word);$i++){
+	  					$replace .= '*';
+	  				}
+	  				$text = str_replace($word, $replace, $text);
+	  			}
+	      }
+		}
+	}
+	
+	$replace = '';
+  }
+  return $text;
+}
+
+/**
+*Implementation of hook_filter
+*/
+
+function phonetic_filter($op, $delta = 0, $format = -1, $text = '') {
+  switch ($op) {
+    case 'list':
+      return array(0 => t('Phonetic Word filter'));
+    case 'description':
+      return phonetic_help('admin/modules#phonetic');
+    case 'settings':
+      $form['phonetic_word_filter'] = array(
+        '#type' => 'fieldset',
+        '#title' => t('Phonetic Word filter'),
+        '#description' => t('You can define a global list of words to be filtered on the <a href="!url">phonetic wordfilter settings page</a>.', array('!url' => url('admin/settings/phoneticfilter'))),
+      );
+      return $form;
+    case 'process':
+      return phonetic_filter_process($text);
+    default:
+      return $text;
+  }
+}
+
+
+/**
+*Implementation of hook_nodeapi
+*/
+
+function phonetic_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+  switch ($op) {
+    case 'insert':
+    case 'update':
+      if (variable_get('phonetic_node_title', FALSE)) {
+        $node->title = phonetic_filter_process($node->title);
+      }
+      break;
+    case 'load':
+      if (variable_get('phonetic_node_title', FALSE)) {
+        $node->title = phonetic_filter_process($node->title);
+      }
+      break;
+    case 'search result':
+      if (variable_get('phonetic_comment_title', TRUE)) {
+        $node->body = wordfilter_filter_process($node->body);
+      }
+      break;
+    }
+}

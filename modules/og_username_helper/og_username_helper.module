@@ -1,0 +1,57 @@
+<?php
+// $Id: og_username_helper.module,v 1.2 2010/01/28 07:17:27 marvil07 Exp $
+
+/**
+ * @file
+ * A widget to add usernames in 'Add Members' and 'Send invitation' OG pages
+ */
+
+// og forms where username helper is shown
+define('OG_INVITE_FORM', 'og-invite-form');
+define('OG_ADD_USERS', 'og-add-users');
+
+/**
+ * Implementation of hook_perm().
+ */
+function og_username_helper_perm() {
+  return array('access og username helper');
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function og_username_helper_menu() {
+  $items = array();
+  // username helper autocomplete
+  $items['og/username_helper/autocomplete'] = array(
+    'title' => 'Autocomplete username',
+    'page callback' => 'user_autocomplete',
+    'access arguments' => array('access og username helper'),
+    'type' => MENU_CALLBACK,
+    'file' => 'user.pages.inc',
+    'file path' => drupal_get_path('module', 'user'),
+  );
+  return $items;
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function og_username_helper_form_alter(&$form, $form_state, $form_id) {
+  global $user;
+  // Add username helper
+  if ($form['#id'] == OG_INVITE_FORM || $form['#id'] == OG_ADD_USERS) {
+    drupal_add_js(drupal_get_path('module', 'og_username_helper') .'/og_username_helper.js');
+    $helper_access = user_access('access og username helper');
+    $form['og_username_helper_text'] = array(
+      '#type' => 'textfield',
+      '#description' => t('Lookup a username and add it to the list below.'),
+      '#autocomplete_path' => 'og/username_helper/autocomplete',
+      '#size' => 40,
+      '#maxlength' => 60,
+      '#weight' => -2,
+      '#access' => $helper_access,
+    );
+    return $form;
+  }
+}

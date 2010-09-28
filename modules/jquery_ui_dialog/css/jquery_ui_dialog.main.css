@@ -1,0 +1,15 @@
+#jq-ui-dialog-iframe {
+  border:0px solid black;
+  padding:0px;
+  margin:0px;
+}
+
+#jq-ui-dialog-iframe html {
+  height:100%;	
+}
+
+.jquery_ui_dialog-dialog-wrapper {
+  z-index:1000;
+}
+
+.ui-widget-overlay { position:absolute;top:0px;left:0px; background: #aaaaaa url(jquery_ui_dialog-dialog/images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x; opacity: .30;filter:Alpha(Opacity=30); }

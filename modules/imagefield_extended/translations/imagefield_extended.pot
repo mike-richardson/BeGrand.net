@@ -1,0 +1,137 @@
+# $Id: imagefield_extended.pot,v 1.1 2009/09/15 14:23:12 aland Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Generated from files:
+#  imagefield_extended.admin.inc: n/a
+#  imagefield_extended.module: n/a
+#  imagefield_extended.info: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2009-09-16 00:12+1000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: imagefield_extended.admin.inc:18
+msgid "Additional text fields"
+msgstr ""
+
+#: imagefield_extended.admin.inc:20
+msgid "A list of new textfields to make available. One textfield form API key / value per line. Key / value pairs must be entered seperated by pipes (|), such as \"fapi_safe_key|Some readable option\"."
+msgstr ""
+
+#: imagefield_extended.admin.inc:27
+msgid "Additional checkboxes fields"
+msgstr ""
+
+#: imagefield_extended.admin.inc:29
+msgid "A list of new checkboxes to make available. One checkbox form API key / value info per line. Key / value pairs must be entered seperated by pipes (|), such as \"fapi_safe_key|Some readable option\"."
+msgstr ""
+
+#: imagefield_extended.admin.inc:50;61
+msgid "Each option must be a key / value pair seperated by a pipe (|)."
+msgstr ""
+
+#: imagefield_extended.admin.inc:54
+msgid "The specified key contains one or more illegal characters. Spaces or any other special characters except an underscore (_) are not allowed."
+msgstr ""
+
+#: imagefield_extended.module:34
+msgid "<p>Once you have defined the new fields here, you need to create a \"File\" field using a \"Image, with additional fields\" widget. The additional fields that you have defined here will be configurable per field type. All new additional fields are disabled by default.</p>"
+msgstr ""
+
+#: imagefield_extended.module:54
+msgid "Image, with additional fields"
+msgstr ""
+
+#: imagefield_extended.module:77
+msgid "!field text settings"
+msgstr ""
+
+#: imagefield_extended.module:84
+msgid "Enable custom !field text"
+msgstr ""
+
+#: imagefield_extended.module:86
+msgid "Enable user input !field text for images."
+msgstr ""
+
+#: imagefield_extended.module:90
+msgid "Required"
+msgstr ""
+
+#: imagefield_extended.module:95
+msgid "Text field style"
+msgstr ""
+
+#: imagefield_extended.module:101
+msgid "!field help or description text"
+msgstr ""
+
+#: imagefield_extended.module:103
+msgid "This value will be used for !field text description field."
+msgstr ""
+
+#: imagefield_extended.module:107
+msgid "Default !field text"
+msgstr ""
+
+#: imagefield_extended.module:109
+msgid "This value will be used for !field text by default."
+msgstr ""
+
+#: imagefield_extended.module:115
+msgid "Workflow settings"
+msgstr ""
+
+#: imagefield_extended.module:124
+msgid "Enable !field checkbox"
+msgstr ""
+
+#: imagefield_extended.module:126
+msgid "Enable user input !field checkbox for images."
+msgstr ""
+
+#: imagefield_extended.module:237
+msgid "Single line text"
+msgstr ""
+
+#: imagefield_extended.module:237
+msgid "Multi-line text"
+msgstr ""
+
+#: imagefield_extended.module:237
+msgid "Formatted multi-line text"
+msgstr ""
+
+#: imagefield_extended.module:241
+msgid "WYSIWYG support"
+msgstr ""
+
+#: imagefield_extended.module:17
+msgid "ImageField Extendeded Fields"
+msgstr ""
+
+#: imagefield_extended.module:20
+msgid "Administer ImageField Extendeded Fields Settings."
+msgstr ""
+
+#: imagefield_extended.info:0
+msgid "ImageField Extended Fields"
+msgstr ""
+
+#: imagefield_extended.info:0
+msgid "Defines additional information to store in an image field type. This is done by creating a new widget type ImageField Extended Fields"
+msgstr ""
+
+#: imagefield_extended.info:0
+msgid "CCK"
+msgstr ""
+

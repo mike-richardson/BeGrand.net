@@ -1,0 +1,5 @@
+This module implements some usage reporting that we needed to track.
+Extended reports can be viewed online, or downloaded as CSV files for
+charting in a spreadsheet program, such as OpenOffice.org.
+
+

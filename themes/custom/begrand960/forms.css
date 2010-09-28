@@ -1,0 +1,146 @@
+/*
+
+#	@file 		
+#	@version 	1.0.0b
+#	@date 		2010-01-20 11:43:04 +0000 (Wed, 20 Jan 2010)
+#	@author 	Rik Abel <rik.abel@begrand.net>
+
+#	Copyright (c) 2010 BeGrand.net <http://www.begrand.net>
+
+*/
+
+
+
+/* general form styling */
+
+
+fieldset.collapsible {
+	margin-bottom: 10px;
+}
+
+
+legend {
+	font-size: 1.2em;
+	color: #5bbcbf;
+}
+
+
+label {
+	color: #274A5D;
+	font-weight: bold;
+	cursor: pointer;
+
+}
+
+label:hover {
+	color: #e21d65;
+}
+
+.form-item label {
+	display: inline;
+}
+
+select {
+	cursor: pointer;
+}
+
+
+.form-description,
+.password-strength {
+	font-size: 0.9em;
+	color: #666;
+	line-height: 1.2;
+}
+
+#edit-txt-to-addrs {
+	width: 440px;
+}
+
+textarea {
+	font-family:"Helvetica Neue", Helvetica, "Lucida Grande","Lucida Sans Unicode",Arial,Verdana,sans-serif;
+	border:2px solid #C3DEEE;
+	font-size: 1em;
+	}	
+
+
+input.form-text {
+	border:2px solid #C3DEEE;
+	font-size: 1em;
+}
+
+
+.form-required {
+	color: #e21d65;
+}
+
+#main input.form-text,
+#main textarea {
+	width: 90%;
+}
+
+
+#main .heartbeat-comments textarea {
+	width: 100%;
+}
+
+
+#fancy_login_form_contents input.form-text {
+	width: 278px;
+}
+
+
+input.form-text:focus,
+textarea:focus {
+	border-color: #274A5D;
+}
+
+
+#main input#edit-delete,
+#main input#edit-delete:visited {
+	padding: 3px 10px;
+	border: none;
+	background-image: none;
+	background-color: #f2f5f7;
+	color: #3B58B8;
+	text-shadow: none;
+	font-weight: normal;
+	text-decoration: underline;
+	margin-top: 10px;
+	
+}
+
+#main input#edit-delete:hover,
+#main input#edit-delete:visited:hover {
+	text-decoration: underline;
+}
+
+
+#page .form-required:after {
+content: " required";
+}
+
+#page .heartbeat-comments .form-required:after {
+content: "";
+}
+
+
+#main .form-button {
+	margin: 5px 0;
+}
+
+.views-exposed-form .views-exposed-widget .form-submit {
+	margin-top:0;
+}
+
+
+
+#main-content #search-form input.form-text {
+	width: 340px;
+	margin-right: 20px;
+}
+
+
+input.disabled {
+	cursor: default;
+	opacity: 0.5;
+}

@@ -1,0 +1,378 @@
+# $Id: en.pot,v 1.1.2.1 2008/06/23 19:10:16 tomaszx Exp $
+#
+# LANGUAGE translation of Drupal (general)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  taxonomy_vtn.pages.inc,v 1.1.2.2 2008/04/22 23:49:05 tomaszx
+#  taxonomy_vtn.module,v 1.1.2.3 2008/05/01 10:01:12 tomaszx
+#  taxonomy_vtn_blocks.module,v 1.1.2.2 2008/05/01 10:01:12 tomaszx
+#  taxonomy_vtn.info,v 1.1.2.1 2008/04/22 23:49:05 tomaszx
+#  taxonomy_vtn_blocks.info,v 1.1.2.1 2008/04/22 23:49:05 tomaszx
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2008-05-13 09:46+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: taxonomy_vtn.pages.inc:92;328
+msgid "Show / Hide descriptions"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:108
+msgid "No data to display. Probably you have set option to not show empty vocabularies."
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:120
+msgid "No data to display. Probably you not have any vocabularies"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:143
+msgid "Terms in"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:145
+msgid "@vocabulary"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:149
+msgid "Bad vocabulary id"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:151
+msgid "No data to display. Probably you not have a vocabulary with vid = !voc_id"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:155;320;350;372;415
+msgid "vocabularies"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:157;322;352;374;417;518;541
+msgid "master index"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:159;324;354;376;419;520;543
+msgid "Back to"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:166;426
+msgid "Please select a vocabulary first"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:278
+msgid "Synonyms"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:346
+msgid "No data to display. Probably you have set option to not show empty terms."
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:368
+msgid "No data to display. Probably this vocabulary is empty."
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:403
+msgid "Nodes of term"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:405
+msgid "@term_name"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:408
+msgid "Bad term id"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:410
+msgid "No data to display. Probably you not have a term with tid = !term_id"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:516;539
+msgid "terms"
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:535
+msgid "No data to display. Probably this term is empty."
+msgstr ""
+
+#: taxonomy_vtn.pages.inc:459
+msgid "1 comment"
+msgid_plural "@count comments"
+msgstr[0] ""
+msgstr[1] ""
+
+#: taxonomy_vtn.module:12
+msgid "Screenshots"
+msgstr ""
+
+#: taxonomy_vtn.module:16
+msgid "Screenshot of vocabulary."
+msgstr ""
+
+#: taxonomy_vtn.module:16
+msgid "Sample vocabulary index"
+msgstr ""
+
+#: taxonomy_vtn.module:21
+msgid "Screenshot of terms."
+msgstr ""
+
+#: taxonomy_vtn.module:21
+msgid "Sample terms index"
+msgstr ""
+
+#: taxonomy_vtn.module:26
+msgid "Screenshot of nodes."
+msgstr ""
+
+#: taxonomy_vtn.module:26
+msgid "Sample nodes index"
+msgstr ""
+
+#: taxonomy_vtn.module:31
+msgid "Features"
+msgstr ""
+
+#: taxonomy_vtn.module:32
+msgid "I'm open for sugestions."
+msgstr ""
+
+#: taxonomy_vtn.module:36
+msgid "Define your prefered setting to use this module."
+msgstr ""
+
+#: taxonomy_vtn.module:66
+msgid "Taxonomy VTN settings"
+msgstr ""
+
+#: taxonomy_vtn.module:67
+msgid "Customize Taxonomy VTN settings"
+msgstr ""
+
+#: taxonomy_vtn.module:74;204 taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:153
+msgid "Vocabularies"
+msgstr ""
+
+#: taxonomy_vtn.module:81;262
+msgid "Terms"
+msgstr ""
+
+#: taxonomy_vtn.module:89
+msgid "Term Nodes"
+msgstr ""
+
+#: taxonomy_vtn.module:141
+msgid "Global"
+msgstr ""
+
+#: taxonomy_vtn.module:147
+msgid "When using caching entire index pages are being cached and changes on terms, nodes or vocabularies won't have any effect until the cache is rebuilt"
+msgstr ""
+
+#: taxonomy_vtn.module:147
+msgid "Note"
+msgstr ""
+
+#: taxonomy_vtn.module:147
+msgid "Now this module support operations"
+msgstr ""
+
+#: taxonomy_vtn.module:147
+msgid "insert, update, delete"
+msgstr ""
+
+#: taxonomy_vtn.module:147
+msgid "for nodes, terms and vocabularies and rebuild automaticaly own cache. In most case this is safe choice. However you can !link"
+msgstr ""
+
+#: taxonomy_vtn.module:147
+msgid "clear cache now"
+msgstr ""
+
+#: taxonomy_vtn.module:151
+msgid "Caching"
+msgstr ""
+
+#: taxonomy_vtn.module:158
+msgid "!setlocale is supported. <br />This mean that sort index alphabetical with specific letters like !letters can be really sorted with your language. Enjoy."
+msgstr ""
+
+#: taxonomy_vtn.module:161
+msgid "Your server not support !setlocale. <br />This mean that sort index alphabetical with specific letters like !letters can't be really sorted with your language."
+msgstr ""
+
+#: taxonomy_vtn.module:166
+msgid "Use setlocale"
+msgstr ""
+
+#: taxonomy_vtn.module:167
+msgid "If you have some trouble, turn off this option."
+msgstr ""
+
+#: taxonomy_vtn.module:174
+msgid "List of supported locale by server"
+msgstr ""
+
+#: taxonomy_vtn.module:175
+msgid "Here select your lang code to proper sort."
+msgstr ""
+
+#: taxonomy_vtn.module:188
+msgid "User friendly titles"
+msgstr ""
+
+#: taxonomy_vtn.module:194
+msgid "Overwrite links"
+msgstr ""
+
+#: taxonomy_vtn.module:205
+msgid "Set how show the vocabularies index"
+msgstr ""
+
+#: taxonomy_vtn.module:211;274
+msgid "Show descriptions"
+msgstr ""
+
+#: taxonomy_vtn.module:216 taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:46
+msgid "Show count of terms"
+msgstr ""
+
+#: taxonomy_vtn.module:221;284
+msgid "Show empty"
+msgstr ""
+
+#: taxonomy_vtn.module:226;239;294;307;357
+msgid "One"
+msgstr ""
+
+#: taxonomy_vtn.module:227;240;295;308;358
+msgid "Two"
+msgstr ""
+
+#: taxonomy_vtn.module:228;241;296;309
+msgid "Three"
+msgstr ""
+
+#: taxonomy_vtn.module:232;300
+msgid "Letters to group"
+msgstr ""
+
+#: taxonomy_vtn.module:233;301
+msgid "This settings make index grouped like, Example:"
+msgstr ""
+
+#: taxonomy_vtn.module:233;301
+msgid "or"
+msgstr ""
+
+#: taxonomy_vtn.module:245;313;362
+msgid "Number of columns"
+msgstr ""
+
+#: taxonomy_vtn.module:252
+msgid "Direct go to terms if is the only one vocabulary"
+msgstr ""
+
+#: taxonomy_vtn.module:263
+msgid "Set how show the terms index"
+msgstr ""
+
+#: taxonomy_vtn.module:269;342
+msgid "Show"
+msgstr ""
+
+#: taxonomy_vtn.module:269
+msgid "back to vocabularies"
+msgstr ""
+
+#: taxonomy_vtn.module:279 taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:52
+msgid "Show count of nodes"
+msgstr ""
+
+#: taxonomy_vtn.module:289
+msgid "Show synonyms"
+msgstr ""
+
+#: taxonomy_vtn.module:319
+msgid "List of nodes"
+msgstr ""
+
+#: taxonomy_vtn.module:325
+msgid "Where we go on click a term"
+msgstr ""
+
+#: taxonomy_vtn.module:335
+msgid "Nodes"
+msgstr ""
+
+#: taxonomy_vtn.module:336
+msgid "Set how show the nodes index"
+msgstr ""
+
+#: taxonomy_vtn.module:342
+msgid "back to terms"
+msgstr ""
+
+#: taxonomy_vtn.module:347
+msgid "Show count of comments"
+msgstr ""
+
+#: taxonomy_vtn.module:352
+msgid "Show count for nodes with no comments"
+msgstr ""
+
+#: taxonomy_vtn.module:368
+msgid "Show index if number of columns are set to one column"
+msgstr ""
+
+#: taxonomy_vtn.module:54
+msgid "administer taxonomy_vtn"
+msgstr ""
+
+#: taxonomy_vtn.module:54
+msgid "access taxonomy_vtn"
+msgstr ""
+
+#: taxonomy_vtn.module:0
+msgid "taxonomy_vtn"
+msgstr ""
+
+#: taxonomy_vtn.info:0;0 taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:10 taxonomy_vtn_blocks/taxonomy_vtn_blocks.info:0
+msgid "Taxonomy VTN"
+msgstr ""
+
+#: taxonomy_vtn.info:0
+msgid "Taxonomy VTN - vocabularies, terms and nodes"
+msgstr ""
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:35
+msgid "Show empty vocabularies"
+msgstr ""
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:40
+msgid "Show vocabulary description"
+msgstr ""
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:47;53
+msgid "This may slow your site"
+msgstr ""
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.module:0
+msgid "taxonomy_vtn_blocks"
+msgstr ""
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.info:0
+msgid "Taxonomy VTN Blocks"
+msgstr ""
+
+#: taxonomy_vtn_blocks/taxonomy_vtn_blocks.info:0
+msgid "Provides blocks for Taxonomy VTN."
+msgstr ""
+

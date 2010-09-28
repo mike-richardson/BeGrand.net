@@ -1,0 +1,4 @@
+/* fix gaps in lists */
+
+.sidebar div ul li a {display:inline-block;}
+.sidebar div ul li a {display:block;}

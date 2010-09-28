@@ -1,0 +1,53 @@
+<?php
+// $Id: ucd.module,v 1.1.2.4 2010/02/02 11:26:00 swentel Exp $
+
+/**
+ * @file
+ * Ubercart displays.
+ */
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function ucd_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
+  if (uc_product_is_product(array('type' => $node->type))) {
+    switch ($op) {
+      case 'view':
+        foreach ($node->content as $key => $value) {
+          if (isset($node->content[$key]['#value'])) {
+            $obj_key = 'ucd_'. $key;
+            $node->$obj_key = $node->content[$key]['#value'];
+          }
+        }
+      break;
+    }
+  }
+}
+
+/**
+ * Implementation of hook_ds_fields().
+ */
+function ucd_ds_fields($type_name, $build_mode, $extra) {
+  $fields = array();
+  if (uc_product_is_product(array('type' => $type_name))) {
+    $product_fields = array(
+      "display_price",
+      "model",
+      "list_price",
+      "cost",
+      "sell_price",
+      "weight",
+      "dimensions",
+      "add_to_cart"
+    );
+
+    foreach ($product_fields as $key => $value) {
+      $fields['ucd_' . $value] = array(
+        'title' => t('ucd_' . $value),
+        'type' => DS_FIELD_TYPE_PREPROCESS,
+        'status' => DS_FIELD_STATUS_STATIC,
+      );
+    }
+  }
+  return array('nd' => $fields);
+}

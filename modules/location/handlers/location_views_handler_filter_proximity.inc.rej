@@ -1,0 +1,44 @@
+*************** class location_views_handler_filter_prox
+*** 141,154 ****
+        '#default_value' => $this->value['search_distance'],
+      );
+  
+-     $form['value']['search_units'] = array(
+-       '#type' => 'select',
+-       '#options' => array(
+-         'mile' => t('Miles'),
+-         'km' => t('Kilometers'),
+-       ),
+-       '#default_value' => $this->value['search_units'],
+-     );
+    }
+  
+    function exposed_form(&$form, &$form_state) {
+--- 141,167 ----
+        '#default_value' => $this->value['search_distance'],
+      );
+  
++     $default_distance_unit = variable_get('location_default_distance_unit', 'select');
++     if ($default_distance_unit == 'select') {
++       $form['value']['search_units'] = array(
++         '#type' => 'select',
++         '#options' => array(
++           'km' => t('Kilometers'),
++           'mile' => t('Miles'),
++         ),
++         '#default_value' => $this->value['search_units'],
++       );
++     }
++     else {
++       $form['value']['search_units'] = array(
++         '#type' => 'value',
++         '#value' => $default_distance_unit,
++       );
++       $form['value']['display_unit'] = array(
++         '#type' => 'markup',
++         '#value' => t('Distance in: ') . ($default_distance_unit == 'km' ? t('Kilometers') : t('Miles')),
++       );
++     }
+    }
+  
+    function exposed_form(&$form, &$form_state) {

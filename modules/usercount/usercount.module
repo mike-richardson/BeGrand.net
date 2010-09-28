@@ -1,0 +1,180 @@
+<?php
+// $Id: usercount.module,v 1.7 2009/04/09 19:17:18 yelvington Exp $
+
+/**
+ * @file
+ * This module reports some user stats
+ */
+
+/**
+ * Implementation of hook_perm().
+ */
+function usercount_perm() {
+  return array('access usercount');
+}
+
+/**
+ * Implementation of hook_menu().
+  */
+function usercount_menu() {
+  $items['admin/reports/usercount'] = array(
+    'title' => t('User count'),
+    'page callback' => 'usercount_summary',
+    'access arguments' => array('access usercount'),
+    'type' => MENU_NORMAL_ITEM,
+    ); 
+  $items['admin/reports/usercount/summary'] = array(
+    'title' => t('Summary'),
+    'access arguments' => array('access usercount'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => '-1',
+    );
+  $items['admin/reports/usercount/confirmed'] = array(
+    'title' => t('Confirmed'),
+    'page callback' => 'usercount_confirmed',
+    'access arguments' => array('access usercount'),
+    'type' => MENU_LOCAL_TASK,
+    );
+  $items['admin/reports/usercount/blocked'] = array(
+    'title' => t('Blocked'),
+    'page callback' => 'usercount_blocked',
+    'access arguments' => array('access usercount'),
+    'type' => MENU_LOCAL_TASK,
+    );
+  if(module_exists('blog')) $items['admin/reports/usercount/blog'] = array(
+    'title' => t('Bloggers'),
+    'page callback' => 'usercount_bloggers',
+    'file' => 'usercount_bloggers.inc',
+    'access arguments' => array('access usercount'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => '1',
+  );
+  if(module_exists('comment')) $items['admin/reports/usercount/comment'] = array(
+    'title' => t('Commenters'),
+    'page callback' => 'usercount_commenters',
+    'file' => 'usercount_commenters.inc',
+    'access arguments' => array('access usercount'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => '1',
+  );
+  return $items;
+}
+
+
+/*
+ * Summary page callback
+ */
+function usercount_summary(){
+    drupal_add_css(drupal_get_path('module','usercount') . '/usercount.css', $type = 'module', $media = 'all', $preprocess = FALSE);
+    $rows = array();
+    $sql = "select count(*) as count from users where status=1";
+    $result = db_query($sql);
+    $data = db_fetch_object($result);
+    $rows[] = array(
+                    array('data' => t('Confirmed'), 'class' => 'col1'),
+                    array('data' => $data->count, 'class' => 'col2')
+                    );
+    $sql = "select count(*) as count from users where status=0 and login = 0";
+    $result = db_query($sql);
+    $data = db_fetch_object($result); 
+    $rows[] = array(
+                    array('data' => t('Never logged in'), 'class' => 'col1'),
+                    array('data' => $data->count, 'class' => 'col2')
+                    );
+    $sql = "select count(*) as count from users where status=0 and login != 0";
+    $result = db_query($sql);
+    $data = db_fetch_object($result);
+    $rows[] = array(
+                    array('data' => t('Blocked'), 'class' => 'col1'),
+                    array('data' => $data->count, 'class' => 'col2')
+                    );
+    $header = array();
+    
+    $output .= theme_table($header, $rows, array('class' => 'usercount'), t('Summary of registered users'));
+    require_once('usercount_by_role.inc');
+    $output .= usercount_by_role();
+    return $output;
+}
+
+
+
+/**
+ * Confirmed users page callback
+ */
+function usercount_confirmed($csv=FALSE) {
+  drupal_add_css(drupal_get_path('module','usercount') . '/usercount.css', $type = 'module', $media = 'all', $preprocess = FALSE);  
+  if(!$csv) $output = l(t('Download user count as CSV file'), 'admin/reports/usercount/confirmed/csv');
+  $header = array(t('Year-Month'),t('Count'));
+  /* The registered users */
+  $sql = "select FROM_UNIXTIME(created,'%Y-%m') AS yearmonth, count(*) as count from users where status = 1 and login != 0 group by yearmonth order by yearmonth asc";
+  $rows = array();
+  $result = db_query($sql);
+  if(!$csv){
+      while($data = db_fetch_object($result)) {
+        $rows[] = array(
+            array('data' => $data->yearmonth, 'class' => 'col1'),
+            array('data' => $data->count, 'class' => 'col2'),
+        );
+      }
+      $sql = "select count(*) as count from users where status = 1 and login != 0";
+      $result = db_query($sql);
+      $item = db_fetch_object($result); 
+      $rows[] = array('<strong>' . t('Total:') . '</strong>', $item->count);
+    
+    } else { // clean rows for csv output
+      while($data = db_fetch_object($result)) $rows[] = array($data->yearmonth, $data->count);
+    }
+
+  while($data = db_fetch_object($result)) $rows[] = array($data->yearmonth, $data->count);
+  if(!$csv){
+  $sql = "select count(*) as count from users where status = 1 and login != 0";
+    $result = db_query($sql);
+    $item = db_fetch_object($result); 
+    $rows[] = array('<strong>' . t('Total:') . '</strong>', $item->count);
+  }
+  $rows[] = array(' ',' ');  // blank line
+  
+  if ($csv) {
+    // print CSV header, then csv rows, and exit
+    header('Content-type: application/vnd.ms-excel');
+    header('Content-disposition: attachment; filename=userdata-confirmed-' . date('Y-m-d') . '.csv');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, array(t('Number of activated users')));
+    foreach ($rows as $row) fputcsv($out, $row);
+    fclose($out);
+    exit();
+  }
+  $output .= theme_table($header, $rows,array('class' => 'usercount'),t('Number of activated users'));
+  return $output;
+}
+
+/**
+ * Blocked users
+ */
+function usercount_blocked($csv=FALSE) {
+  if(!$csv) $output = l(t('Download user count as CSV file'), 'admin/reports/usercount/blocked/csv');
+  $header = array(t('Year-Month'),t('Count'));
+  $rows = array();
+  $sql = "select FROM_UNIXTIME(created,'%Y-%m') AS yearmonth, count(*) as count from users where status = 0 and login != 0 group by yearmonth order by yearmonth asc";
+  $result = db_query($sql);
+  while($data = db_fetch_object($result)) $rows[] = array($data->yearmonth, $data->count);
+  if(!$csv){    
+    $sql = "select count(*) as count from users where status = 0 and login != 0";
+    $result = db_query($sql);
+    $item = db_fetch_object($result); 
+    $rows[] = array('<strong>' . t('Total:') .'</strong>', $item->count);
+  }
+  if ($csv) {
+    // print CSV header, then csv rows, and exit
+    header('Content-type: application/vnd.ms-excel');
+    header('Content-disposition: attachment; filename=userdata-blocked-' . date('Y-m-d') . '.csv');
+    $out = fopen('php://output', 'w');
+    fputcsv($out, array(t('Number of blocked users / spammers')));
+    foreach ($rows as $row) fputcsv($out, $row);
+    fclose($out);
+    exit();
+  }
+  $output .= theme_table($header, $rows,array('class' => 'usercount'),t('Number of blocked users / spammers'));
+ 
+  return $output;
+}

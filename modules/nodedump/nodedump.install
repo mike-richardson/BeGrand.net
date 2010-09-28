@@ -1,0 +1,19 @@
+<?php
+// $Id: nodedump.install,v 1.1 2010/05/12 00:40:32 pglatz Exp $
+
+/**
+ * @file
+ * Admin tool to dump node contents
+ *
+ * by Phil Glatz (pglatz at d.o)
+ */
+
+
+
+/**
+* Implementation of hook_uninstall().
+*/
+function nodedump_uninstall() {
+  variable_del('nodedump_last_nid');
+}
+

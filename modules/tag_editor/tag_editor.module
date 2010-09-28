@@ -1,0 +1,57 @@
+<?php
+// $Id: tag_editor.module,v 1.2 2008/12/10 22:24:41 Gurpartap Exp $
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function tag_editor_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+	if ($op == 'prepare') {
+  	$path = drupal_get_path('module', 'tag_editor');
+		$vocabulary_id = variable_get('tag_editor_tag_field', NULL);
+		drupal_add_js(array(
+			'tag_editor' => array(
+				'tag_field' => 'edit-taxonomy-tags-' . $vocabulary_id,
+			),
+		), 'setting');
+	  drupal_add_js($path . '/scripts/tag_editor.js');
+	  drupal_add_css($path . '/scripts/tag_editor.css');
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function tag_editor_menu() {
+	$items = array();
+
+	$items['admin/settings/tag_editor'] = array(
+		'title' => t('Tag editor'),
+		'description' => t('Configure the tag editor for a specific "Tags"-enabled vocabulary.'),
+		'page callback' => 'drupal_get_form',
+		'page arguments' => array('tag_editor_settings'),
+		'access arguments' => array('administer site configuration'),
+		'type' => MENU_NORMAL_ITEM,
+	);
+
+	return $items;
+}
+
+/**
+ * Menu callback; Returns settings form.
+ */
+function tag_editor_settings() {
+	$form = array();
+
+	$form['tag_editor_tag_field'] = array(
+		'#type' => 'textfield',
+		'#title' => t('Vocabulary ID'),
+		'#prefix' => '<div class="container-inline">',
+		'#suffix' => '</div>',
+		'#description' => t('Configure the tag editor for a specific "Tags"-enabled vocabulary.'),
+		'#default_value' => variable_get('tag_editor_tag_field', NULL),
+		'#required' => TRUE,
+		'#size' => 2,
+	);
+
+	return system_settings_form($form);
+}
