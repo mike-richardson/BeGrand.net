@@ -71,6 +71,5 @@ scripts[] = jquery.tipTip.updated.js
 scripts[] = jScrollPane.js
 scripts[] = jquery.lazyload.mini.js
 scripts[] = jquery.textchange.min.js
-scripts[] = jquery.cycle.min.js
 scripts[] = corner.js
 scripts[] = scripts.js
