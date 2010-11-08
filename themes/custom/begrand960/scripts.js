@@ -7,6 +7,11 @@ $(document).ready(function() {
         $('#main-content .buzzthis_button a').filter(function() {
          return this.hostname && this.hostname !== location.hostname;
         }).removeClass('external-link');
+        
+        
+        $('.external-link').attr('rel', 'nofollow');
+        
+        
         $("a[href$='pdf']").addClass("pdf-link"); 
         $("a[href$='csv']").addClass("csv-link");
         $("a[href^='mailto']").addClass("mail-link"); 
@@ -23,15 +28,17 @@ $(document).ready(function() {
       	$("#main-content .rsvp_form_content a").addClass("tipTip");
       	$("#edit-submit-bgn-events-by-event-type").addClass("tipTip");
       	
-      	$("#your-begrand a[href^='/users/']").addClass("your-account"); 
-      	$("#your-begrand a[href^='/messages']").addClass("your-messages");
-      	$("#your-begrand a[href^='/blog/']").addClass("your-blog");
-      	$("#your-begrand a[href^='/relationships/']").addClass("your-friends");
-      	$("#your-begrand a[href^='/galleries']").addClass("photo-galleries");
-      	$("#your-begrand a[href^='/node/add/node-gallery-gallery']").addClass("add-photo-gallery");
-      	$("#your-begrand a[href^='/node/add/node-gallery-image']").addClass("add-image");
-      	$("#your-begrand a[href^='/logout']").addClass("log-out");
+      	$("#sidebar-left a[href^='/users/']").addClass("your-account"); 
+      	$("#sidebar-left a[href^='/messages']").addClass("your-messages");
+      	$("#sidebar-left a[href^='/blog/']").addClass("your-blog");
+      	$("#sidebar-left a[href^='/relationships/']").addClass("your-friends");
+      	$("#sidebar-left a[href^='/galleries']").addClass("photo-galleries");
+      	$("#sidebar-left a[href^='/node/add/node-gallery-gallery']").addClass("add-photo-gallery");
+      	$("#sidebar-left a[href^='/node/add/node-gallery-image']").addClass("add-image");
+      	$("#sidebar-left a[href^='/logout']").addClass("log-out");
       	
+      	$("#loggedin_status div a[href^='/logout']").addClass("log-out");
+      	$("#loggedin_status a[href^='/users/']").addClass("your-account");
       	
       	$("#sidebar-left a[href='/local']").addClass("events-home");
       	$("#sidebar-left a[href^='/node/add/event']").addClass("add-event");
@@ -78,7 +85,7 @@ $(document).ready(function() {
       	
       	
       	$(".view-tracker").jScrollPane();
-      	
+      	$(".twtr-timeline").jScrollPane();
       	
       	$(".stripes tbody tr:odd").addClass("odd");
       	$(".stripes tbody tr:even").addClass("even");
@@ -86,6 +93,8 @@ $(document).ready(function() {
       	
       	$(".front .blue-box img").addClass("corner").addClass("iradius5");
       	
+      	$(".views-slideshow-controls-bottom img").addClass("corner").addClass("iradius5");
+      	$(".field-slideshow-image-fid img").addClass("corner").addClass("iradius10");
       	
       	$("p.event-type:contains('Art and culture')").addClass("art");
       	$("p.event-type:contains('Childcare')").addClass("childcare");
@@ -116,6 +125,10 @@ $(document).ready(function() {
         
         $('body.path-event #edit-body-wrapper label').replaceWith('<label for="edit-body">Description of activity</label>');
         
+        
+        
+       
+        
         $('<h2>Add your listing</h2>').insertBefore('body.path-event #node-form');
         
         
@@ -143,7 +156,7 @@ $(document).ready(function() {
    		 });
       	
       	
-      	$("#main-content img").lazyload({ 
+      	$(".not-front #main-content img").lazyload({ 
     		effect : "fadeIn"
 });
       	
@@ -162,8 +175,9 @@ $(document).ready(function() {
 		});
       	
   	
-      	
-      	
+      	$('a#toTop').attr('title','Click for top of page');
+      	$("a#toTop").tipTip();
+      	$().UItoTop({ easingType: 'easeOutQuart' });
       	
       	$('#main-content a[href*=#]').click(function() {
     if (location.pathname.replace(/^\//,'') == this.pathname.replace(/^\//,'')

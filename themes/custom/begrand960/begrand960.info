@@ -9,6 +9,7 @@ stylesheets[all][] = forms.css
 stylesheets[all][] = tipTip.css
 stylesheets[all][] = css3.css
 stylesheets[all][] = homepage_slideshow.css
+stylesheets[all][] = ui.totop.css
 
 ; Set the conditional stylesheets that are processed by IE.
 conditional-stylesheets[if IE][all][] = ie.css
@@ -70,6 +71,9 @@ scripts[] = jquery.clearforms.js
 scripts[] = jquery.tipTip.updated.js
 scripts[] = jScrollPane.js
 scripts[] = jquery.lazyload.mini.js
-scripts[] = jquery.textchange.min.js
+
+scripts[] = jquery.lettering-0.6.min.js
 scripts[] = corner.js
+scripts[] = jquery.easing.js
+scripts[] = jquery.ui.totop.js
 scripts[] = scripts.js

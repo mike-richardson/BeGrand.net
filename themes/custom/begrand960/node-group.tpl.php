@@ -52,7 +52,14 @@
  */
 ?>
 
-
+<?php // dsm($node->field_bgn_official); ?>
+<?php if ($node->field_bgn_official['0']['value']==1) {
+		echo "<p class='info'>This group was set up by <strong>BeGrand.net</strong>.</p>";
+	}
+	else {
+		echo "<p class='info'>This group was set up by one of our members.</p>";
+	}
+?>
 <div id="node-<?php print $node->nid; ?>" class="node<?php if ($sticky) { print ' sticky'; } ?><?php if (!$status) { print ' node-unpublished'; } ?> clear-block">
 <?php 
 $org= $node->field_bgn_organisation;

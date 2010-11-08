@@ -125,7 +125,7 @@ if ($page == 0){
    	<!- Google maps v3 implementation -> 
   	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
   	<!- extInfowWindow stuff as well... -->
-  	<script src="sftp://begrand.net//var/www/pressflow/sites/all/modules/gmap/thirdparty/extinfowindow/extinfowindow_packed.js" type="text/javascript"></script>
+  	<script src="/sites/all/modules/gmap/thirdparty/extinfowindow/extinfowindow_packed.js" type="text/javascript"></script>
   	
   	<script type="text/javascript">
 	  	var latlng = new google.maps.LatLng(<?php print $node->location['latitude']; ?>, <?php print $node->location['longitude']; ?>);  

@@ -22,9 +22,11 @@ p.money,
 #channel_intro,
 #blog-mission,
 .og-mission,
-#main-content .field-slideshow-image-fid img,
+.field-slideshow-image-fid img,
 .field-slideshow-image-fid,
-#row1-block2 .blue-box {
+#row1-block2 .blue-box,
+body .cke_skin_kama .cke_wrapper,
+body span.cke_skin_kama {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
@@ -44,7 +46,8 @@ p.money,
 #row3-block2 h3,
 #home-tags h3,
 #im-friendlist-friends,
-.front #page #row1-block2 ul.quicktabs_tabs {
+.front #page #row1-block2 ul.quicktabs_tabs,
+body .cke_skin_kama .cke_dialog_title {
   -moz-border-radius-topleft: 10px;
   -moz-border-radius-topright: 10px;
   -webkit-border-top-left-radius: 10px;
@@ -72,7 +75,11 @@ body.front .view ul,
 #blog-mission p,
 .sidebar .heartbeat-block,
 .front #page .quicktabs_main,
-.slideshow-text-bg {
+.slideshow-text-bg,
+body .cke_skin_kama .cke_dialog_footer,
+.twtr-widget,
+.twtr-widget .twtr-doc,
+.quotes-quote {
   -moz-border-radius-bottomleft: 10px;
   -moz-border-radius-bottomright: 10px;
   -webkit-border-bottom-left-radius: 10px;
@@ -100,13 +107,20 @@ textarea,
 #main .gallery-cover-view img,
 #main-content img,
 .views-rotator-item img,
-.front .blue-box img {
+.front .blue-box img,
+.views-slideshow-controls-bottom img {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
 }
 /* 5px top */
-ul.slidenav a, #page ul.quicktabs_tabs li a {
+ul.slidenav a,
+#page ul.quicktabs_tabs li a,
+body .cke_skin_kama a.cke_dialog_tab,
+body .cke_skin_kama a:link.cke_dialog_tab,
+body .cke_skin_kama a:active.cke_dialog_tab,
+body .cke_skin_kama a:hover.cke_dialog_tab,
+body .cke_skin_kama a:visited.cke_dialog_tab {
   -moz-border-radius-topleft: 5px;
   -moz-border-radius-topright: 5px;
   -webkit-border-top-left-radius: 5px;

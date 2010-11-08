@@ -18,9 +18,8 @@
 
     <div id="site-header" class="clear-block">
       <div id="branding" class="grid-4 clear-block">
-      <?php if ($linked_logo_img): ?>
-        <span id="logo" class="grid-4 alpha omega"><?php print $linked_logo_img; ?></span>
-      <?php endif; ?>
+      <span id="logo" class="grid-4 alpha omega"><a href="/" rel="home"><img src="/sites/default/files/begrand960_logo.gif" alt="BeGrand.net" width="220" height="31" title="Home" class="tipTip"/></a>
+        </span>
       <?php if ($linked_site_name): ?>
         <h1 id="site-name" class="grid-4 alpha omega"><?php print $linked_site_name; ?></h1>
       <?php endif; ?>
